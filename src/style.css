@@ -1,23 +1,30 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
 body, html {
   width: 100%;
   height: 100%;
-  background: #0a0a0f;
+  background: #f5f5f5;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #app {
   display: flex;
-  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
 }
 
 #game-area {
-  flex-shrink: 0;
   width: 800px;
-  height: 600px;
-  background: #14141e;
+  height: 800px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 #game-area canvas {
@@ -32,156 +39,30 @@ body, html {
   user-select: none;
 }
 
-#content-panel {
-  flex: 1;
-  min-width: 300px;
-  max-width: 500px;
-  height: 600px;
-  background: #1a1a24;
-  color: #e0e0e0;
-  overflow-y: auto;
-  border-left: 2px solid #333;
-}
-
-.panel-header {
-  padding: 8px 12px;
-  background: #222230;
-  border-bottom: 1px solid #333;
-}
-
-.panel-header h2 {
-  font-size: 12px;
-  color: #88ccff;
-  margin-bottom: 2px;
-}
-
-.panel-header .path {
-  font-size: 9px;
-  color: #888;
-  font-family: monospace;
-}
-
-.panel-progress {
-  padding: 8px 12px;
-  background: #1e1e28;
-  border-bottom: 1px solid #333;
-}
-
-.progress-bar {
-  height: 6px;
-  background: #333;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #4caf50, #8bc34a);
-  transition: width 0.3s ease;
-}
-
-.progress-text {
-  font-size: 10px;
-  color: #aaa;
-  display: flex;
-  justify-content: space-between;
-}
-
-.timer {
-  color: #ffcc00;
-  font-family: monospace;
-  font-weight: bold;
-}
-
-.panel-targets {
-  padding: 8px 12px;
-  border-bottom: 1px solid #333;
-}
-
-.panel-targets h3 {
-  font-size: 10px;
-  color: #888;
-  margin-bottom: 4px;
-}
-
-.target-list {
-  list-style: none;
-}
-
-.target-item {
-  font-size: 10px;
-  padding: 2px 6px;
-  margin-bottom: 2px;
-  background: #252530;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.target-item.cleared {
-  background: #1a3020;
-  color: #8bc34a;
-}
-
-.target-item.current {
-  background: #2a2a40;
-  border: 1px solid #4488ff;
-}
-
-.target-check {
-  width: 12px;
-  text-align: center;
-}
-
-.panel-text {
-  padding: 8px 12px;
-}
-
-.panel-text h3 {
-  font-size: 10px;
-  color: #888;
-  margin-bottom: 4px;
-}
-
-.panel-text .content {
-  font-size: 11px;
-  line-height: 1.5;
-  color: #ccc;
-}
-
-.panel-text .locked {
-  color: #666;
-  font-style: italic;
-  text-align: center;
-  padding: 10px;
-}
-
-/* レスポンシブ: スマホ対応 */
+/* レスポンシブ: モバイル対応 */
 @media (max-width: 900px) {
-  #app {
-    flex-direction: column;
-    height: auto;
+  body, html {
+    background: #ffffff;
   }
 
   #game-area {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
+    width: 100vw;
+    height: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   #game-area canvas {
     width: 100% !important;
     height: auto !important;
   }
+}
 
-  #content-panel {
-    width: 100%;
-    max-width: none;
+/* タブレット縦向き */
+@media (max-width: 900px) and (min-height: 800px) {
+  #game-area {
     height: auto;
-    min-height: 300px;
-    border-left: none;
-    border-top: 2px solid #333;
+    aspect-ratio: 1 / 1;
   }
 }

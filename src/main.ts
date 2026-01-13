@@ -1,53 +1,116 @@
 import kaboom from 'kaboom';
+import type { BlockSource } from './types';
+import { loadCrawlData, extractBlockSources } from './data/blockData';
+import { preloadImages } from './utils/imageLoader';
+import { createTitleScene } from './scenes/title';
+import { createGameScene } from './scenes/game';
+import { createResultScene } from './scenes/result';
+import { audioManager } from './systems/audioManager';
 
 async function main() {
-  // Kaboom.js 初期化（game-area要素に描画）
+  // Kaboom.js 初期化
   const gameArea = document.getElementById('game-area');
   const k = kaboom({
     width: 800,
-    height: 600,
-    background: [20, 20, 30],
-    debug: true,  // F1でヒットボックス表示
+    height: 800,
+    background: [255, 255, 255],
+    debug: false,
     global: false,
     root: gameArea || undefined,
   });
 
-  // タイトルシーン
-  k.scene('title', () => {
-    k.add([
-      k.text('Agile Studio Tower', { size: 32 }),
-      k.pos(k.width() / 2, k.height() / 2 - 50),
-      k.anchor('center'),
-      k.color(255, 255, 255),
-    ]);
+  // ローディング表示
+  k.add([
+    k.rect(800, 800),
+    k.pos(0, 0),
+    k.color(255, 255, 255),
+  ]);
 
-    k.add([
-      k.text('Press Z to Start', { size: 20 }),
-      k.pos(k.width() / 2, k.height() / 2 + 50),
-      k.anchor('center'),
-      k.color(200, 200, 200),
-    ]);
+  const loadingText = k.add([
+    k.text('Loading...', { size: 28 }),
+    k.pos(400, 380),
+    k.anchor('center'),
+    k.color(150, 150, 150),
+  ]);
 
-    k.onKeyPress('z', () => {
-      k.go('game');
+  const loadingSubText = k.add([
+    k.text('Preparing blocks from agile-studio.jp', { size: 14 }),
+    k.pos(400, 420),
+    k.anchor('center'),
+    k.color(180, 180, 180),
+  ]);
+
+  try {
+    // クロールデータをロード
+    loadingSubText.text = 'Loading site data...';
+    const crawlData = await loadCrawlData();
+
+    // ブロックソースを抽出
+    loadingSubText.text = 'Extracting block data...';
+    const sourcesWithoutImages = extractBlockSources(crawlData);
+
+    // 画像をプリロード
+    loadingSubText.text = 'Loading images...';
+    const loadedImages = await preloadImages(k, sourcesWithoutImages.imageUrls);
+
+    // ブロックソース完成
+    const blockSources: BlockSource = {
+      ...sourcesWithoutImages,
+      loadedImages,
+    };
+
+    // ロード結果をログ出力
+    const successCount = Array.from(loadedImages.values()).filter(img => img.success).length;
+    console.log(`Images: ${successCount}/${blockSources.imageUrls.length} loaded successfully`);
+    console.log(`Keywords: ${blockSources.keywords.length} available`);
+
+    // 失敗した画像をログ
+    loadedImages.forEach((img, url) => {
+      if (!img.success) {
+        console.warn(`Failed to load image: ${url}`);
+      }
     });
-  });
 
-  // ゲームシーン
-  k.scene('game', () => {
-    k.add([
-      k.text('Game Scene', { size: 24 }),
-      k.pos(k.width() / 2, k.height() / 2),
-      k.anchor('center'),
-    ]);
+    // オーディオマネージャー初期化
+    audioManager.init();
 
-    k.onKeyPress('z', () => {
+    // シーン作成
+    createTitleScene(k);
+    createGameScene(k, blockSources);
+    createResultScene(k);
+
+    // ローディング表示を削除
+    k.destroy(loadingText);
+    k.destroy(loadingSubText);
+
+    // タイトル画面へ
+    k.go('title');
+
+  } catch (error) {
+    console.error('Failed to initialize game:', error);
+
+    // エラー表示
+    loadingText.text = 'Failed to load game data';
+    loadingText.color = k.rgb(200, 50, 50);
+    loadingSubText.text = 'Please refresh the page to try again';
+
+    // フォールバック: 最小限のブロックソースで開始
+    k.wait(2, () => {
+      const fallbackSources: BlockSource = {
+        imageUrls: [],
+        keywords: ['アジャイル', 'スクラム', 'スプリント', 'バックログ', 'レトロ'],
+        loadedImages: new Map(),
+      };
+
+      createTitleScene(k);
+      createGameScene(k, fallbackSources);
+      createResultScene(k);
+
+      k.destroy(loadingText);
+      k.destroy(loadingSubText);
       k.go('title');
     });
-  });
-
-  // タイトル画面から開始
-  k.go('title');
+  }
 }
 
-main();
+main().catch(console.error);
