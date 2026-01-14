@@ -6,7 +6,9 @@ const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 
 export function createResultScene(k: KaboomCtx): void {
   k.scene('result', (params: ResultParams) => {
-    const rank = getRankForScore(params.score);
+    // 崩壊した場合はスコア0
+    const finalScore = params.reason === 'blockFell' ? 0 : params.score;
+    const rank = getRankForScore(finalScore);
 
     // 白背景
     k.add([
@@ -50,7 +52,7 @@ export function createResultScene(k: KaboomCtx): void {
     ]);
 
     // スコアカウントアップアニメーション
-    const targetScore = params.score;
+    const targetScore = finalScore;
     const scoreInterval = setInterval(() => {
       displayScore += Math.ceil(targetScore / 30);
       if (displayScore >= targetScore) {

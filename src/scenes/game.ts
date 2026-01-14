@@ -1,5 +1,5 @@
 import type { KaboomCtx, GameState, BlockSource, BlockConfig, GameObj } from '../types';
-import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight } from '../systems/physics';
+import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight, updateSeesaw } from '../systems/physics';
 import { getDifficultyForTime, selectBlockType, generateBlockConfig } from '../systems/blockSpawner';
 import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
@@ -26,9 +26,27 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
     // 落下中のブロック（着地待ち）
     let fallingBlock: GameObj | null = null;
 
-    // 使用済みリソースのインデックス
-    let usedImageIndex = 0;
-    let usedKeywordIndex = 0;
+    // 使用済みリソース（重複を避けるため）
+    const usedImageIndices = new Set<number>();
+    const usedKeywordIndices = new Set<number>();
+
+    // ランダムに未使用のインデックスを取得
+    function getRandomUnusedIndex(total: number, usedSet: Set<number>): number {
+      // 全て使用済みならリセット
+      if (usedSet.size >= total) {
+        usedSet.clear();
+      }
+      // 未使用のインデックスからランダムに選択
+      const unused = [];
+      for (let i = 0; i < total; i++) {
+        if (!usedSet.has(i)) {
+          unused.push(i);
+        }
+      }
+      const idx = unused[Math.floor(Math.random() * unused.length)];
+      usedSet.add(idx);
+      return idx;
+    }
 
     // 白背景
     k.add([
@@ -53,22 +71,22 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       const difficulty = getDifficultyForTime(state.blocksDropped / TOTAL_BLOCKS * 60);
 
       // ブロックソースから利用可能なリソースを取得
-      const availableImages = blockSources.imageUrls.length - usedImageIndex;
-      const availableKeywords = blockSources.keywords.length - usedKeywordIndex;
+      const totalImages = blockSources.imageUrls.length;
+      const totalKeywords = blockSources.keywords.length;
 
-      const type = selectBlockType(difficulty, availableImages, availableKeywords);
+      const type = selectBlockType(difficulty, totalImages, totalKeywords);
 
-      // リソースを取得
+      // リソースをランダムに取得（重複を避ける）
       let imageData;
       let keywordText;
 
-      if (type === 'image' && availableImages > 0) {
-        const url = blockSources.imageUrls[usedImageIndex % blockSources.imageUrls.length];
+      if (type === 'image' && totalImages > 0) {
+        const idx = getRandomUnusedIndex(totalImages, usedImageIndices);
+        const url = blockSources.imageUrls[idx];
         imageData = blockSources.loadedImages.get(url);
-        usedImageIndex++;
-      } else if (type === 'keyword' && availableKeywords > 0) {
-        keywordText = blockSources.keywords[usedKeywordIndex % blockSources.keywords.length];
-        usedKeywordIndex++;
+      } else if (type === 'keyword' && totalKeywords > 0) {
+        const idx = getRandomUnusedIndex(totalKeywords, usedKeywordIndices);
+        keywordText = blockSources.keywords[idx];
       }
 
       pendingConfig = generateBlockConfig(type, difficulty, imageData, keywordText);
@@ -158,6 +176,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
     // メインループ
     k.onUpdate(() => {
       if (state.isGameOver) return;
+
+      // シーソーの傾きを更新
+      updateSeesaw(k);
 
       // 落下判定
       if (checkFallenBlocks(k)) {

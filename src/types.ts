@@ -1,17 +1,19 @@
 import type { KaboomCtx, GameObj } from 'kaboom';
 
 // ブロック種別
-export type BlockType = 'image' | 'keyword' | 'obstacle';
+export type BlockType = 'image' | 'keyword';
+
+// ブロック形状
+export type BlockShape = 'rect' | 'circle' | 'triangle';
 
 // ブロック設定
 export interface BlockConfig {
   type: BlockType;
   width: number;
   height: number;
+  shape: BlockShape;      // 形状（矩形・円・三角）
   imageUrl?: string;      // 画像ブロック用（スプライト名）
   text?: string;          // キーワードブロック用
-  shape?: 'circle' | 'triangle';  // お邪魔ブロック用
-  obstacleText?: string;  // お邪魔ブロックの表示テキスト
 }
 
 // ゲーム状態
@@ -27,8 +29,8 @@ export interface GameState {
 export interface DifficultyConfig {
   minBlockWidth: number;
   maxBlockWidth: number;
-  oscillationSpeed: number;  // 水平移動速度
-  obstacleChance: number;    // 0.0 to 1.0
+  oscillationSpeed: number;    // 水平移動速度
+  tallBlockChance: number;     // 縦長ブロックの確率 (0.0 to 1.0)
 }
 
 // ランク定義
