@@ -21,8 +21,9 @@ export interface GameState {
   velocity: number;       // スコア（最高到達点）
   blocksRemaining: number; // 残りブロック数
   blocksDropped: number;  // 落としたブロック数
+  timeRemaining: number;  // 残り時間（秒）
   isGameOver: boolean;
-  gameOverReason: 'complete' | 'blockFell' | null;
+  gameOverReason: 'complete' | 'blockFell' | 'timeout' | null;
 }
 
 // 難易度設定
@@ -112,8 +113,8 @@ export type MedalType = 'gold' | 'silver' | 'bronze' | 'none';
 export interface ResultParams {
   score: number;
   blocksDropped: number;
-  reason: 'complete' | 'blockFell';
-  passedWinLine: boolean;  // WIN LINEを超えたか（途中で崩れても記録）
+  reason: 'complete' | 'blockFell' | 'timeout';
+  passedWinLine: boolean;  // CLEAR LINEを超えたか（途中で崩れても記録）
 }
 
 // Kaboomコンテキスト型（再エクスポート）

@@ -112,7 +112,7 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // クリアライン表示
     k.add([
-      k.text(`WIN LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
+      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
       k.pos(400, 710),
       k.anchor('center'),
       k.color(50, 180, 50),

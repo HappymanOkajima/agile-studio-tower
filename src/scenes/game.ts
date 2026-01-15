@@ -1,5 +1,5 @@
 import type { KaboomCtx, GameState, BlockSource, BlockConfig, GameObj } from '../types';
-import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight, updateSeesaw } from '../systems/physics';
+import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight, updateSeesaw, updateWind, applyWindToBlocks } from '../systems/physics';
 import { getDifficultyForTime, selectBlockType, generateBlockConfig } from '../systems/blockSpawner';
 import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
@@ -7,6 +7,7 @@ import { audioManager } from '../systems/audioManager';
 import { GAME_CONFIG } from '../systems/scoreManager';
 
 const TOTAL_BLOCKS = 10; // ブロック数
+const TIME_LIMIT = 30;   // 制限時間（秒）
 
 export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
   k.scene('game', () => {
@@ -15,11 +16,12 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       velocity: 0,
       blocksRemaining: TOTAL_BLOCKS,
       blocksDropped: 0,
+      timeRemaining: TIME_LIMIT,
       isGameOver: false,
       gameOverReason: null,
     };
 
-    // WIN LINE超えフラグ（一度超えたら崩れても記録）
+    // CLEAR LINE超えフラグ（一度超えたら崩れても記録）
     let passedWinLine = false;
 
     // 現在の待機ブロック
@@ -147,7 +149,7 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
     k.onTouchStart(handleDrop);
 
     // ゲーム終了
-    function endGame(reason: 'complete' | 'blockFell'): void {
+    function endGame(reason: 'complete' | 'blockFell' | 'timeout'): void {
       if (state.isGameOver) return;
 
       state.isGameOver = true;
@@ -163,6 +165,8 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       // 効果音
       if (reason === 'blockFell') {
         audioManager.playCrash();
+      } else if (reason === 'timeout') {
+        audioManager.playCrash(); // タイムアウトも失敗音
       } else {
         audioManager.playComplete();
       }
@@ -182,8 +186,20 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
     k.onUpdate(() => {
       if (state.isGameOver) return;
 
+      // タイマー更新
+      state.timeRemaining -= k.dt();
+      if (state.timeRemaining <= 0) {
+        state.timeRemaining = 0;
+        endGame('timeout');
+        return;
+      }
+
       // シーソーの傾きを更新
       updateSeesaw(k);
+
+      // 風を更新
+      updateWind(k);
+      applyWindToBlocks(k);
 
       // 落下判定
       if (checkFallenBlocks(k)) {
@@ -197,7 +213,7 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
         state.velocity = currentHeight;
       }
 
-      // WIN LINE超えチェック（一度超えたら記録）
+      // CLEAR LINE超えチェック（一度超えたら記録）
       if (!passedWinLine && state.velocity >= GAME_CONFIG.WIN_THRESHOLD) {
         passedWinLine = true;
       }

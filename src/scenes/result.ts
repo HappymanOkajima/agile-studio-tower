@@ -15,12 +15,12 @@ const MEDAL_COLORS = {
 };
 
 // メダル判定
-function determineMedal(isNewRecord: boolean, reason: 'complete' | 'blockFell', passedWinLine: boolean): MedalType {
+function determineMedal(isNewRecord: boolean, reason: 'complete' | 'blockFell' | 'timeout', passedWinLine: boolean): MedalType {
   // 金メダル: 10個積み切り + 最高記録更新
   if (reason === 'complete' && isNewRecord) return 'gold';
   // 銀メダル: 10個全て積み切り
   if (reason === 'complete') return 'silver';
-  // 銅メダル: WIN LINE超え（崩れても）
+  // 銅メダル: CLEAR LINE超え（崩れても/タイムアウトでも）
   if (passedWinLine) return 'bronze';
   // メダルなし
   return 'none';
@@ -28,8 +28,8 @@ function determineMedal(isNewRecord: boolean, reason: 'complete' | 'blockFell', 
 
 export function createResultScene(k: KaboomCtx): void {
   k.scene('result', (params: ResultParams) => {
-    // 崩壊した場合でもpassedWinLineがあればスコア表示
-    const finalScore = params.reason === 'blockFell' ? 0 : params.score;
+    // 崩壊/タイムアウトの場合でもpassedWinLineがあればスコア表示
+    const finalScore = (params.reason === 'blockFell' || params.reason === 'timeout') ? 0 : params.score;
     // 表示用スコア（WIN LINE超えていたら記録する）
     const displayScore = params.passedWinLine ? params.score : finalScore;
     const rank = getRankForScore(displayScore);
@@ -69,9 +69,16 @@ export function createResultScene(k: KaboomCtx): void {
     } else if (medal === 'bronze') {
       headerText = 'BRONZE MEDAL!';
       headerColor = k.rgb(MEDAL_COLORS.bronze.r, MEDAL_COLORS.bronze.g, MEDAL_COLORS.bronze.b);
-      subHeaderText = 'WIN LINE CLEARED!';
+      subHeaderText = 'CLEAR LINE PASSED!';
     } else if (params.reason === 'blockFell') {
       headerText = 'TOWER COLLAPSED...';
+      headerColor = k.rgb(LOSE_COLOR.r, LOSE_COLOR.g, LOSE_COLOR.b);
+      const remaining = GAME_CONFIG.WIN_THRESHOLD - params.score;
+      if (remaining > 0) {
+        subHeaderText = `あと ${remaining} pt でクリア!`;
+      }
+    } else if (params.reason === 'timeout') {
+      headerText = 'TIME UP!';
       headerColor = k.rgb(LOSE_COLOR.r, LOSE_COLOR.g, LOSE_COLOR.b);
       const remaining = GAME_CONFIG.WIN_THRESHOLD - params.score;
       if (remaining > 0) {
@@ -166,7 +173,7 @@ export function createResultScene(k: KaboomCtx): void {
     // クリアライン表示
     const hasMedal = medal !== 'none';
     k.add([
-      k.text(`WIN LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 14 }),
+      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 14 }),
       k.pos(400, 395),
       k.anchor('center'),
       k.color(hasMedal ? WIN_COLOR.r : 150, hasMedal ? WIN_COLOR.g : 150, hasMedal ? WIN_COLOR.b : 150),

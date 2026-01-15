@@ -18,12 +18,21 @@ export const PHYSICS_CONFIG = {
   // 滑り設定
   slideSpeed: 15,           // ブロックの滑り速度係数
   slideThreshold: 14,       // この角度以上で滑り始める
+  // 風設定
+  windCycleTime: 4,         // 風が変わる周期（秒）
+  windMaxStrength: 80,      // 風の最大強さ（px/s）
+  windFallingMultiplier: 2, // 落下中ブロックへの風の倍率
+  windCenterMultiplier: 1.5, // 中央付近への風の影響倍率
 };
 
 // シーソーの状態
 let seesawAngle = 0;        // 現在の傾き（度）
 let seesawAngularVel = 0;   // 角速度
 let groundObj: GameObj | null = null;
+
+// 風の状態
+let windTime = 0;           // 風の時間カウンター
+let currentWind = 0;        // 現在の風の強さ（-1〜1、負=左、正=右）
 
 export function getGroundTilt(): number {
   return seesawAngle;
@@ -37,6 +46,44 @@ export function setupPhysics(k: KaboomCtx): void {
   k.setGravity(PHYSICS_CONFIG.gravity);
   seesawAngle = 0;
   seesawAngularVel = 0;
+  windTime = 0;
+  currentWind = 0;
+}
+
+// 現在の風の強さを取得（-1〜1）
+export function getWindStrength(): number {
+  return currentWind;
+}
+
+// 風を更新（毎フレーム呼ぶ）
+export function updateWind(k: KaboomCtx): void {
+  const dt = k.dt();
+  windTime += dt;
+
+  // サイン波で風を変化させる（滑らかに左右に変わる）
+  const cycle = (2 * Math.PI) / PHYSICS_CONFIG.windCycleTime;
+  currentWind = Math.sin(windTime * cycle);
+}
+
+// 風をブロックに適用（落下中のブロックのみ）
+export function applyWindToBlocks(k: KaboomCtx): void {
+  const dt = k.dt();
+  const windForce = currentWind * PHYSICS_CONFIG.windMaxStrength;
+
+  // 落下中のブロックにのみ風の影響を与える
+  const droppedBlocks = k.get('droppedBlock');
+  for (const block of droppedBlocks) {
+    if (block.landed) continue; // 着地済みは影響なし
+
+    // 中央からの距離を計算（0〜1）
+    const distFromCenter = Math.abs(block.pos.x - 400) / 200; // 200px離れると1
+    // 中央ほど風の影響が大きい（端は安定）
+    const centerFactor = 1 + (1 - Math.min(distFromCenter, 1)) * (PHYSICS_CONFIG.windCenterMultiplier - 1);
+
+    // 落下中は風の影響を受ける
+    const force = windForce * PHYSICS_CONFIG.windFallingMultiplier * centerFactor;
+    block.pos.x += force * dt;
+  }
 }
 
 export function createGround(k: KaboomCtx): GameObj {
