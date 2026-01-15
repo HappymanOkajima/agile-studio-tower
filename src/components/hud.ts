@@ -1,4 +1,6 @@
 import type { KaboomCtx, GameObj, GameState } from '../types';
+import { GAME_CONFIG } from '../systems/scoreManager';
+import { PHYSICS_CONFIG } from '../systems/physics';
 
 export interface HUDElements {
   blocksLabel: GameObj;
@@ -7,6 +9,8 @@ export interface HUDElements {
   velocityText: GameObj;
   heightBar: GameObj;
   heightMarker: GameObj;
+  winLine: GameObj;
+  winLineLabel: GameObj;
 }
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
@@ -67,6 +71,25 @@ export function createHUD(k: KaboomCtx): HUDElements {
     k.z(100),
   ]);
 
+  // クリアライン（実際のゲーム画面上の位置）
+  // 地面Y座標からWIN_THRESHOLD分上の位置
+  const gameWinLineY = PHYSICS_CONFIG.groundY - GAME_CONFIG.WIN_THRESHOLD;
+  const winLine = k.add([
+    k.rect(780, 2),
+    k.pos(10, gameWinLineY),
+    k.color(50, 180, 50),
+    k.opacity(0.6),
+    k.z(98),
+  ]);
+
+  // クリアラインラベル
+  const winLineLabel = k.add([
+    k.text('WIN LINE', { size: 10 }),
+    k.pos(740, gameWinLineY - 12),
+    k.color(50, 180, 50),
+    k.z(98),
+  ]);
+
   return {
     blocksLabel,
     blocksText,
@@ -74,6 +97,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
     velocityText,
     heightBar,
     heightMarker,
+    winLine,
+    winLineLabel,
   };
 }
 

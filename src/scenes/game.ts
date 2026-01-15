@@ -4,6 +4,7 @@ import { getDifficultyForTime, selectBlockType, generateBlockConfig } from '../s
 import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
 import { audioManager } from '../systems/audioManager';
+import { GAME_CONFIG } from '../systems/scoreManager';
 
 const TOTAL_BLOCKS = 10; // ブロック数
 
@@ -17,6 +18,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       isGameOver: false,
       gameOverReason: null,
     };
+
+    // WIN LINE超えフラグ（一度超えたら崩れても記録）
+    let passedWinLine = false;
 
     // 現在の待機ブロック
     let pendingBlock: GameObj | null = null;
@@ -169,6 +173,7 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
           score: state.velocity,
           blocksDropped: state.blocksDropped,
           reason,
+          passedWinLine,
         });
       });
     }
@@ -190,6 +195,11 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       const currentHeight = calculateMaxHeight(k);
       if (currentHeight > state.velocity) {
         state.velocity = currentHeight;
+      }
+
+      // WIN LINE超えチェック（一度超えたら記録）
+      if (!passedWinLine && state.velocity >= GAME_CONFIG.WIN_THRESHOLD) {
+        passedWinLine = true;
       }
 
       // HUD更新

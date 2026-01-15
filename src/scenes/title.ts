@@ -1,5 +1,6 @@
 import type { KaboomCtx } from '../types';
 import { audioManager } from '../systems/audioManager';
+import { getRanking, GAME_CONFIG } from '../systems/scoreManager';
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 
@@ -106,6 +107,79 @@ export function createTitleScene(k: KaboomCtx): void {
       k.pos(400, 670),
       k.anchor('center'),
       k.color(180, 100, 100),
+      k.z(10),
+    ]);
+
+    // クリアライン表示
+    k.add([
+      k.text(`WIN LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
+      k.pos(400, 710),
+      k.anchor('center'),
+      k.color(50, 180, 50),
+      k.z(10),
+    ]);
+
+    // ランキング表示
+    createRankingDisplay(k);
+  });
+}
+
+// ランキング表示
+function createRankingDisplay(k: KaboomCtx): void {
+  const ranking = getRanking();
+  if (ranking.length === 0) return;
+
+  const startX = 650;
+  const startY = 200;
+
+  // ランキングタイトル
+  k.add([
+    k.text('RANKING', { size: 16 }),
+    k.pos(startX, startY),
+    k.anchor('center'),
+    k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
+    k.z(10),
+  ]);
+
+  // 各エントリー
+  ranking.forEach((entry, index) => {
+    const y = startY + 30 + index * 28;
+
+    // 順位
+    const rankColors = [
+      { r: 255, g: 215, b: 0 },   // 1位: 金
+      { r: 192, g: 192, b: 192 }, // 2位: 銀
+      { r: 205, g: 127, b: 50 },  // 3位: 銅
+      { r: 100, g: 100, b: 100 }, // 4位以下
+      { r: 100, g: 100, b: 100 },
+    ];
+    const color = rankColors[index];
+
+    k.add([
+      k.text(`${index + 1}.`, { size: 14 }),
+      k.pos(startX - 60, y),
+      k.anchor('left'),
+      k.color(color.r, color.g, color.b),
+      k.z(10),
+    ]);
+
+    // スコア
+    k.add([
+      k.text(`${entry.score} pt`, { size: 14 }),
+      k.pos(startX - 35, y),
+      k.anchor('left'),
+      k.color(80, 80, 80),
+      k.z(10),
+    ]);
+
+    // 日付（MM/DD形式）
+    const date = new Date(entry.date);
+    const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+    k.add([
+      k.text(dateStr, { size: 10 }),
+      k.pos(startX + 45, y + 2),
+      k.anchor('left'),
+      k.color(140, 140, 140),
       k.z(10),
     ]);
   });

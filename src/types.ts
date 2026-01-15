@@ -105,11 +105,15 @@ export interface CrawlData {
   commonLinks: string[];
 }
 
+// メダル種別
+export type MedalType = 'gold' | 'silver' | 'bronze' | 'none';
+
 // リザルト画面パラメータ
 export interface ResultParams {
   score: number;
   blocksDropped: number;
   reason: 'complete' | 'blockFell';
+  passedWinLine: boolean;  // WIN LINEを超えたか（途中で崩れても記録）
 }
 
 // Kaboomコンテキスト型（再エクスポート）

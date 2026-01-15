@@ -9,12 +9,12 @@ export const PHYSICS_CONFIG = {
   leftBound: 0,            // 左端
   rightBound: 800,         // 右端
   // シーソー設定
-  seesawSensitivity: 0.012, // 傾き感度（上げてトルクを効きやすく）
-  maxTilt: 15,              // 最大傾斜角度（度）- 下げて崩壊を防ぐ
-  tiltDamping: 0.85,        // 傾き変化の減衰（少し上げて反応良く）
-  torqueDeadzone: 20,       // デッドゾーンを小さく（反対側の効果を感じやすく）
-  restoreForce: 0.25,       // 復元力を上げてバランス回復しやすく
-  leverMultiplier: 1.8,     // てこの倍率（距離の効果を強調）
+  seesawSensitivity: 0.008, // 傾き感度
+  maxTilt: 15,              // 最大傾斜角度（度）
+  tiltDamping: 0.85,        // 傾き変化の減衰
+  torqueDeadzone: 0,        // デッドゾーン無し
+  restoreForce: 0.15,       // 自然な復元力（弱め）
+  counterBonus: 2.5,        // カウンター効果倍率（傾きと反対側のブロックは効果UP）
   // 滑り設定
   slideSpeed: 15,           // ブロックの滑り速度係数
   slideThreshold: 14,       // この角度以上で滑り始める
@@ -88,14 +88,21 @@ export function updateSeesaw(k: KaboomCtx): void {
     const height = block.blockHeight ?? 50;
     const weight = (width * height) / 1000; // 正規化
 
-    // てこの原理: 距離が遠いほど効果が大きい
-    // 距離の絶対値に倍率をかけて、符号を戻す
-    const leverEffect = Math.sign(distFromCenter) *
-      Math.pow(Math.abs(distFromCenter), PHYSICS_CONFIG.leverMultiplier) /
-      Math.pow(100, PHYSICS_CONFIG.leverMultiplier - 1); // 正規化（100px基準）
+    // シンプルなてこの原理: トルク = 距離 × 重さ
+    let torque = distFromCenter * weight;
 
-    // トルク = てこ効果 × 重さ
-    totalTorque += leverEffect * weight;
+    // カウンターボーナス: 傾きが大きい時だけ、反対側のブロックは効果が増幅
+    // 傾きが大きいほどボーナスが増える（グラデーション）
+    const tiltAmount = Math.abs(seesawAngle);
+    const isCounterWeight = (seesawAngle > 0 && distFromCenter < -20) ||
+                            (seesawAngle < 0 && distFromCenter > 20);
+    if (isCounterWeight && tiltAmount > 3) {
+      // 傾きが3度以上の時だけボーナス発動、傾きに比例して効果UP
+      const bonusStrength = Math.min((tiltAmount - 3) / 10, 1); // 3度〜13度で0〜1
+      torque *= 1 + (PHYSICS_CONFIG.counterBonus - 1) * bonusStrength;
+    }
+
+    totalTorque += torque;
   }
 
   // デッドゾーン: 小さなトルクは無視（バランスが取りやすく）

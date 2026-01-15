@@ -55,8 +55,19 @@ export function generateBlockConfig(
       if (imageData && imageData.success) {
         // 画像のアスペクト比を維持してスケール
         const aspectRatio = imageData.height / imageData.width;
-        const scaledWidth = Math.min(baseWidth * 1.2, 120);
-        const scaledHeight = Math.min(scaledWidth * aspectRatio, 80);
+        const maxWidth = 120;
+        const maxHeight = 80;
+
+        // 幅と高さの両方の上限を考慮してアスペクト比を保つ
+        let scaledWidth = Math.min(baseWidth * 1.2, maxWidth);
+        let scaledHeight = scaledWidth * aspectRatio;
+
+        // 高さが上限を超える場合は、高さ基準で幅を縮小
+        if (scaledHeight > maxHeight) {
+          scaledHeight = maxHeight;
+          scaledWidth = scaledHeight / aspectRatio;
+        }
+
         return {
           type: 'image',
           width: scaledWidth,

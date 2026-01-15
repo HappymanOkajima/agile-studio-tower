@@ -156,31 +156,43 @@ export function dropPendingBlock(
 
   const droppedBlock = k.add(components);
 
-  // 着地検出
-  droppedBlock.onCollide('ground', () => {
+  // 着地時の安定角度を記録するための変数
+  let landedStableAngle: number | null = null;
+
+  // 着地検出（着地時の角度を記録）
+  const onLand = () => {
+    if (droppedBlock.landed) return;
     droppedBlock.landed = true;
-  });
-  droppedBlock.onCollide('droppedBlock', () => {
-    droppedBlock.landed = true;
-  });
+
+    // 着地時の角度から最も近い安定角度を計算して固定
+    let angle = droppedBlock.angle % 360;
+    if (angle < 0) angle += 360;
+    landedStableAngle = Math.round(angle / 90) * 90;
+
+    // 着地時にシーソーの傾きも考慮して初期角度を設定
+    const groundTilt = getGroundTilt();
+    droppedBlock.angle = landedStableAngle + groundTilt;
+  };
+
+  droppedBlock.onCollide('ground', onLand);
+  droppedBlock.onCollide('droppedBlock', onLand);
 
   // 着地後の物理挙動（矩形のみ）
   droppedBlock.onUpdate(() => {
-    if (!droppedBlock.landed) return;
+    if (!droppedBlock.landed || landedStableAngle === null) return;
 
     const groundTilt = getGroundTilt(); // シーソーの現在の傾き（度）
     const dt = k.dt();
 
-    // 角度を正規化して安定角度（90度ごと）までパタンと倒れる
-    let angle = droppedBlock.angle % 360;
-    if (angle < 0) angle += 360;
+    // 目標角度 = 着地時に決定した安定角度 + シーソーの傾き
+    const targetAngle = landedStableAngle + groundTilt;
 
-    const nearestStable = Math.round(angle / 90) * 90;
-    const diff = nearestStable - angle;
+    // 現在の角度から目標角度への差分
+    const diff = targetAngle - droppedBlock.angle;
 
-    // 安定角度との差が小さければ止まる（閾値: 2度）
-    if (Math.abs(diff) > 2) {
-      const rotateSpeed = 120; // 度/秒
+    // スムーズに目標角度に追従（閾値: 0.5度）
+    if (Math.abs(diff) > 0.5) {
+      const rotateSpeed = 180; // 度/秒（追従速度を上げる）
       const rotateAmount = Math.sign(diff) * Math.min(Math.abs(diff), rotateSpeed * dt);
       droppedBlock.angle += rotateAmount;
     }
