@@ -6,8 +6,8 @@ import type { GameObj } from '../types';
 interface ImageOverlay {
   element: HTMLImageElement;
   targetBlock: GameObj;
-  offsetX: number;
-  offsetY: number;
+  width: number;
+  height: number;
 }
 
 class DOMImageOverlayManager {
@@ -18,6 +18,12 @@ class DOMImageOverlayManager {
 
   // 初期化（ゲーム開始時に呼ぶ）
   init(): void {
+    // 既存のコンテナがあれば削除
+    const existing = document.getElementById('image-overlay-container');
+    if (existing) {
+      existing.remove();
+    }
+
     // キャンバス要素を取得
     this.canvas = document.querySelector('canvas');
     if (!this.canvas) return;
@@ -55,15 +61,14 @@ class DOMImageOverlayManager {
 
     img.src = imageUrl;
     img.style.position = 'absolute';
-    img.style.width = `${width}px`;
-    img.style.height = `${height}px`;
     img.style.objectFit = 'cover';
     img.style.borderRadius = '4px';
     img.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.2)';
     img.style.border = '2px solid rgba(180, 80, 20, 0.8)';
-    img.style.transformOrigin = 'center center';
     img.style.opacity = '0';
     img.style.transition = 'opacity 0.2s';
+    // ボーダーをサイズに含める
+    img.style.boxSizing = 'border-box';
 
     // 読み込み成功時に表示
     img.onload = () => {
@@ -79,8 +84,8 @@ class DOMImageOverlayManager {
     this.overlays.set(id, {
       element: img,
       targetBlock,
-      offsetX: 0,
-      offsetY: 0,
+      width,
+      height,
     });
 
     return id;
@@ -117,7 +122,7 @@ class DOMImageOverlayManager {
     const scaleY = canvasHeight / 600;
 
     for (const [id, overlay] of this.overlays) {
-      const { element, targetBlock } = overlay;
+      const { element, targetBlock, width, height } = overlay;
 
       // ブロックが存在しなくなったら削除
       if (!targetBlock.exists()) {
@@ -125,24 +130,30 @@ class DOMImageOverlayManager {
         continue;
       }
 
-      // ブロックのワールド座標を取得
+      // ブロックの中心座標を取得（Kaboomのanchor='center'）
       const blockX = targetBlock.pos.x;
       const blockY = targetBlock.pos.y;
-      const width = targetBlock.blockWidth || 100;
-      const height = targetBlock.blockHeight || 60;
 
-      // コンテナ内の相対座標に変換（anchorがcenterなので中心から計算）
-      const posX = (blockX - width / 2) * scaleX;
-      const posY = (blockY - height / 2) * scaleY;
+      // スケール後のサイズ
+      const scaledWidth = width * scaleX;
+      const scaledHeight = height * scaleY;
 
-      element.style.left = `${posX}px`;
-      element.style.top = `${posY}px`;
-      element.style.width = `${width * scaleX}px`;
-      element.style.height = `${height * scaleY}px`;
+      // 中心座標をスケール変換
+      const centerX = blockX * scaleX;
+      const centerY = blockY * scaleY;
 
-      // 回転も適用
+      // サイズを設定
+      element.style.width = `${scaledWidth}px`;
+      element.style.height = `${scaledHeight}px`;
+
+      // 回転角度
       const angle = targetBlock.angle ?? 0;
-      element.style.transform = `rotate(${angle}deg)`;
+
+      // transformで位置と回転を同時に設定（中心基準）
+      // translate(-50%, -50%)で要素の中心を基準点に
+      element.style.left = `${centerX}px`;
+      element.style.top = `${centerY}px`;
+      element.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
     }
   }
 
