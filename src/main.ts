@@ -7,30 +7,20 @@ import { createGameScene } from './scenes/game';
 import { createResultScene } from './scenes/result';
 import { audioManager } from './systems/audioManager';
 
-// モバイル向けスクロール防止
+// モバイル向けスクロール防止（タッチイベントを妨げない）
 function preventMobileScroll(): void {
-  // ゲームエリアのみスクロール防止（キャンバス上のタッチ）
-  const gameArea = document.getElementById('game-area');
-  if (gameArea) {
-    gameArea.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-    }, { passive: false });
-  }
-
-  // ピンチズーム防止（iOS）
+  // ピンチズーム防止（iOS）- gestureイベントのみ
   document.addEventListener('gesturestart', (e) => {
     e.preventDefault();
   });
 
-  // ダブルタップズーム防止（iOS Safari）
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-      e.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, { passive: false });
+  document.addEventListener('gesturechange', (e) => {
+    e.preventDefault();
+  });
+
+  document.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+  });
 }
 
 async function main() {

@@ -150,6 +150,15 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
     k.onKeyPress('space', handleDrop);
     k.onTouchStart(handleDrop);
 
+    // iOS Safari用: ネイティブDOMタッチイベントも登録
+    const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
+    if (canvas) {
+      canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleDrop();
+      }, { passive: false });
+    }
+
     // ゲーム終了
     function endGame(reason: 'complete' | 'blockFell' | 'timeout'): void {
       if (state.isGameOver) return;

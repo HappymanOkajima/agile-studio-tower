@@ -10,7 +10,7 @@ body, html {
   align-items: center;
   overflow: hidden;
   position: fixed;
-  touch-action: none;
+  touch-action: manipulation;
   -webkit-overflow-scrolling: none;
 }
 
@@ -33,7 +33,7 @@ body, html {
 
 #game-area canvas {
   display: block;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 /* タッチデバイス用スタイル */

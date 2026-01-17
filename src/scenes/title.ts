@@ -74,7 +74,10 @@ export function createTitleScene(k: KaboomCtx): void {
     });
 
     // クリック/タップでゲーム開始
+    let gameStarted = false;
     const startGame = () => {
+      if (gameStarted) return;
+      gameStarted = true;
       audioManager.init();
       audioManager.resume();
       k.go('game');
@@ -82,7 +85,7 @@ export function createTitleScene(k: KaboomCtx): void {
 
     startBtn.onClick(startGame);
 
-    // タッチでも開始（iOS対応）
+    // タッチでも開始（iOS対応）- Kaboom経由
     k.onTouchStart(() => {
       // ボタン領域内のタッチかチェック
       const touch = k.mousePos();
@@ -94,6 +97,32 @@ export function createTitleScene(k: KaboomCtx): void {
         startGame();
       }
     });
+
+    // iOS Safari用: ネイティブDOMタッチイベントも登録
+    const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
+    if (canvas) {
+      const handleNativeTouch = (e: TouchEvent) => {
+        if (gameStarted) return;
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        // キャンバス座標に変換（800x800のゲーム座標系）
+        const scaleX = 800 / rect.width;
+        const scaleY = 800 / rect.height;
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
+
+        // ボタン領域チェック
+        const btnPos = startBtn.pos;
+        const hw = 130;
+        const hh = 30;
+        if (x >= btnPos.x - hw && x <= btnPos.x + hw &&
+            y >= btnPos.y - hh && y <= btnPos.y + hh) {
+          e.preventDefault();
+          startGame();
+        }
+      };
+      canvas.addEventListener('touchstart', handleNativeTouch, { passive: false });
+    }
 
     // スペースキーでも開始
     k.onKeyPress('space', startGame);
