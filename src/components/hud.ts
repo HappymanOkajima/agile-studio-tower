@@ -123,10 +123,10 @@ export function createHUD(k: KaboomCtx): HUDElements {
     k.z(100),
   ]);
 
-  // 風のポール（固定）
+  // 風のポール（固定）- 少し上に配置
   const windPole = k.add([
-    k.rect(3, 28),
-    k.pos(200, 20),
+    k.rect(3, 24),
+    k.pos(200, 18),
     k.anchor('top'),
     k.color(120, 120, 120),
     k.fixed(),
@@ -135,14 +135,15 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // 風の旗（ドット絵風三角形 - 5本の短冊で構成）
   // 各短冊は高さが異なり、三角形を形成
-  const stripHeights = [12, 10, 8, 5, 2]; // 根元から先端へ
+  const stripHeights = [10, 8, 6, 4, 2]; // 根元から先端へ（少し小さく）
   const stripWidth = 4;
+  const flagBaseY = 22; // 旗の基準Y位置
   const windFlagStrips: GameObj[] = [];
 
   for (let i = 0; i < stripHeights.length; i++) {
     const strip = k.add([
       k.rect(stripWidth, stripHeights[i]),
-      k.pos(200 + i * stripWidth, 24),
+      k.pos(200 + i * stripWidth, flagBaseY),
       k.anchor('left'),
       k.color(100, 180, 220),
       k.fixed(),
@@ -206,32 +207,41 @@ export function updateHUD(k: KaboomCtx, hud: HUDElements, state: GameState): voi
   const absWind = Math.abs(wind);
 
   const stripWidth = 4;
-  const stripHeights = [12, 10, 8, 5, 2];
+  const stripHeights = [10, 8, 6, 4, 2];
+  const flagBaseY = 22;
   // 風の強さに応じて表示する短冊数（1〜5）
   const visibleStrips = absWind < 0.2 ? 1 : absWind < 0.4 ? 2 : absWind < 0.6 ? 3 : absWind < 0.8 ? 4 : 5;
+
+  // 現在時刻（ゆらぎアニメーション用）
+  const time = k.time();
 
   hud.windFlagStrips.forEach((strip, i) => {
     if (i < visibleStrips) {
       strip.hidden = false;
       strip.height = stripHeights[i];
 
+      // 各短冊ごとに位相をずらしたゆらぎ（先端ほど大きく揺れる）
+      const wavePhase = i * 0.8; // 位相のずれ
+      const waveAmplitude = (i + 1) * 0.5 * absWind; // 振幅（先端ほど大きく、風が強いほど大きく）
+      const wave = Math.sin(time * 8 + wavePhase) * waveAmplitude;
+
       if (absWind < 0.2) {
         // 微風：旗を垂れ下げる（ポール直下に小さく）
         strip.pos.x = 199;
-        strip.pos.y = 24 + i * 3;
+        strip.pos.y = flagBaseY + i * 3;
         strip.width = 3;
         strip.height = 3;
         strip.color = k.rgb(150, 150, 150);
       } else if (wind < 0) {
         // 左向きの風：旗を左に伸ばす
         strip.pos.x = 199 - (i + 1) * stripWidth;
-        strip.pos.y = 24;
+        strip.pos.y = flagBaseY + wave;
         strip.width = stripWidth;
         strip.color = k.rgb(100, 180, 220);
       } else {
         // 右向きの風：旗を右に伸ばす
         strip.pos.x = 201 + i * stripWidth;
-        strip.pos.y = 24;
+        strip.pos.y = flagBaseY + wave;
         strip.width = stripWidth;
         strip.color = k.rgb(100, 180, 220);
       }
