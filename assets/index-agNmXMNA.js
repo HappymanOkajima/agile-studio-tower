@@ -3723,7 +3723,7 @@ function extractBlockSources(crawlData) {
 function extractPageLinks(crawlData) {
   const links = [];
   for (const page of crawlData.pages) {
-    if (page.path === "/" || page.path === "/privacy-policy" || page.path === "/contact") {
+    if (page.path === "/" || page.path === "/privacy-policy" || page.path === "/contact" || page.path.startsWith("/people")) {
       continue;
     }
     links.push({
