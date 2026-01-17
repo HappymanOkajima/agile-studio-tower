@@ -103,6 +103,19 @@ async function loadBase64AsSprite(
       const width = img.naturalWidth;
       const height = img.naturalHeight;
 
+      // サイズが0または小さすぎる場合は失敗扱い
+      if (width < 10 || height < 10) {
+        clearTimeout(timeoutId);
+        resolve({
+          url: base64,
+          sprite: '',
+          width: 150,
+          height: 90,
+          success: false,
+        });
+        return;
+      }
+
       try {
         // Kaboomスプライトとして登録
         await k.loadSprite(spriteName, base64);

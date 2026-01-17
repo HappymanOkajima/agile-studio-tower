@@ -52,7 +52,8 @@ export function generateBlockConfig(
 
   switch (type) {
     case 'image': {
-      if (imageData) {
+      // 画像データが有効でサイズも正しい場合のみ画像ブロックとして使用
+      if (imageData && imageData.success && imageData.width > 0 && imageData.height > 0) {
         // 画像のアスペクト比を維持してスケール
         const aspectRatio = imageData.height / imageData.width;
         const maxWidth = 100;  // 縦長レイアウト用に縮小
@@ -68,16 +69,19 @@ export function generateBlockConfig(
           scaledWidth = scaledHeight / aspectRatio;
         }
 
-        return {
-          type: 'image',
-          width: scaledWidth,
-          height: scaledHeight,
-          shape: 'rect',
-          imageUrl: imageData.success ? imageData.sprite : undefined,
-          originalImageUrl: imageData.url,  // 元URLを保持（DOM表示用）
-        };
+        // サイズが有効な場合のみ画像ブロックとして返す
+        if (scaledWidth > 10 && scaledHeight > 10) {
+          return {
+            type: 'image',
+            width: scaledWidth,
+            height: scaledHeight,
+            shape: 'rect',
+            imageUrl: imageData.sprite,
+            originalImageUrl: imageData.url,
+          };
+        }
       }
-      // 画像データなしの場合はキーワードブロックとして扱う
+      // 画像データが無効な場合はキーワードブロックとして扱う
       return generateBlockConfig('keyword', difficulty, undefined, keywordText || 'AGILE');
     }
 
