@@ -97,12 +97,16 @@ async function loadBase64AsSprite(
       });
     }, 5000);
 
-    // Base64はそのままloadSpriteに渡せる
-    k.loadSprite(spriteName, base64)
-      .then((spriteData) => {
+    // まずImage要素で読み込んでサイズを取得
+    const img = new Image();
+    img.onload = async () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
+
+      try {
+        // Kaboomスプライトとして登録
+        await k.loadSprite(spriteName, base64);
         clearTimeout(timeoutId);
-        const width = spriteData.tex?.width || 150;
-        const height = spriteData.tex?.height || 90;
         resolve({
           url: base64,
           sprite: spriteName,
@@ -110,17 +114,30 @@ async function loadBase64AsSprite(
           height,
           success: true,
         });
-      })
-      .catch(() => {
+      } catch {
         clearTimeout(timeoutId);
         resolve({
           url: base64,
           sprite: '',
-          width: 150,
-          height: 90,
+          width,
+          height,
           success: false,
         });
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timeoutId);
+      resolve({
+        url: base64,
+        sprite: '',
+        width: 150,
+        height: 90,
+        success: false,
       });
+    };
+
+    img.src = base64;
   });
 }
 
