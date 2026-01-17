@@ -4142,13 +4142,13 @@ function createDemoAnimation(k) {
 const PHYSICS_CONFIG = {
   gravity: 2e3,
   // 重力（px/s²）
-  groundY: 750,
-  // 地面のY座標（画面高800に合わせて）
+  groundY: 700,
+  // 地面のY座標（画面高800に合わせて余裕を持たせる）
   groundWidth: 280,
   // 地面の幅（縦長用に少し狭め）
   groundHeight: 16,
   // 地面の高さ
-  fallThreshold: 820,
+  fallThreshold: 780,
   // この高さを超えたらゲームオーバー
   leftBound: 0,
   // 左端
