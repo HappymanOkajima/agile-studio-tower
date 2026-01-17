@@ -4868,7 +4868,6 @@ function createResultScene(k) {
   k.scene("result", (params) => {
     const finalScore = params.reason === "blockFell" || params.reason === "timeout" ? 0 : params.score;
     const displayScore = params.passedWinLine ? params.score : finalScore;
-    const previousHigh = getHighScore();
     const scoreToSave = params.passedWinLine ? params.score : finalScore;
     const isNewRecord = saveHighScore(scoreToSave);
     const medal = determineMedal(isNewRecord, params.reason, params.passedWinLine);
@@ -4980,7 +4979,7 @@ function createResultScene(k) {
       k.z(10)
     ]);
     k.add([
-      k.text(`Blocks: ${params.blocksDropped}  |  High: ${Math.max(previousHigh, finalScore)} pt`, { size: 11 }),
+      k.text(`Blocks: ${params.blocksDropped}`, { size: 11 }),
       k.pos(200, 360),
       k.anchor("center"),
       k.color(120, 120, 120),
@@ -4990,7 +4989,7 @@ function createResultScene(k) {
     if (pageLinks.length > 0) {
       const randomLink = pageLinks[Math.floor(Math.random() * pageLinks.length)];
       k.add([
-        k.text("Check this out!", { size: 12 }),
+        k.text("Agile Studioの記事をチェック!", { size: 12 }),
         k.pos(200, 420),
         k.anchor("center"),
         k.color(100, 100, 100),
