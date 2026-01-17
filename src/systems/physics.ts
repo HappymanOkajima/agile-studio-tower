@@ -3,11 +3,11 @@ import type { KaboomCtx, GameObj } from 'kaboom';
 export const PHYSICS_CONFIG = {
   gravity: 2000,           // 重力（px/s²）
   groundY: 750,            // 地面のY座標（画面高800に合わせて）
-  groundWidth: 320,        // 地面の幅（シーソー用に少し広め）
+  groundWidth: 280,        // 地面の幅（縦長用に少し狭め）
   groundHeight: 16,        // 地面の高さ
   fallThreshold: 820,      // この高さを超えたらゲームオーバー
   leftBound: 0,            // 左端
-  rightBound: 800,         // 右端
+  rightBound: 400,         // 右端（400幅）
   // シーソー設定
   seesawSensitivity: 0.008, // 傾き感度
   maxTilt: 15,              // 最大傾斜角度（度）
@@ -76,7 +76,7 @@ export function applyWindToBlocks(k: KaboomCtx): void {
     if (block.landed) continue; // 着地済みは影響なし
 
     // 中央からの距離を計算（0〜1）
-    const distFromCenter = Math.abs(block.pos.x - 400) / 200; // 200px離れると1
+    const distFromCenter = Math.abs(block.pos.x - 200) / 100; // 100px離れると1
     // 中央ほど風の影響が大きい（端は安定）
     const centerFactor = 1 + (1 - Math.min(distFromCenter, 1)) * (PHYSICS_CONFIG.windCenterMultiplier - 1);
 
@@ -90,7 +90,7 @@ export function createGround(k: KaboomCtx): GameObj {
   // シーソー型の地面（中央支点）
   groundObj = k.add([
     k.rect(PHYSICS_CONFIG.groundWidth, PHYSICS_CONFIG.groundHeight),
-    k.pos(400, PHYSICS_CONFIG.groundY),
+    k.pos(200, PHYSICS_CONFIG.groundY),
     k.anchor('center'),
     k.rotate(0),
     k.area(),
@@ -107,7 +107,7 @@ export function createGround(k: KaboomCtx): GameObj {
       k.vec2(-20, 30),
       k.vec2(20, 30),
     ]),
-    k.pos(400, PHYSICS_CONFIG.groundY + 10),
+    k.pos(200, PHYSICS_CONFIG.groundY + 10),
     k.anchor('center'),
     k.color(80, 80, 80),
     k.z(5),
@@ -127,8 +127,8 @@ export function updateSeesaw(k: KaboomCtx): void {
   for (const block of blocks) {
     if (!block.landed) continue;
 
-    // 中心(400)からの距離
-    const distFromCenter = block.pos.x - 400;
+    // 中心(200)からの距離
+    const distFromCenter = block.pos.x - 200;
 
     // ブロックの重さ（面積に比例）
     const width = block.blockWidth ?? 50;

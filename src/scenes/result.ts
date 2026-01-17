@@ -47,7 +47,7 @@ export function createResultScene(k: KaboomCtx): void {
 
     // 白背景
     k.add([
-      k.rect(800, 800),
+      k.rect(400, 800),
       k.pos(0, 0),
       k.color(255, 255, 255),
       k.z(0),
@@ -92,8 +92,8 @@ export function createResultScene(k: KaboomCtx): void {
     }
 
     const header = k.add([
-      k.text(headerText, { size: 48 }),
-      k.pos(400, 130),
+      k.text(headerText, { size: 32 }),
+      k.pos(200, 130),
       k.anchor('center'),
       k.color(headerColor),
       k.scale(1),
@@ -114,8 +114,8 @@ export function createResultScene(k: KaboomCtx): void {
       // メダル獲得時は明るい色、それ以外はグレー
       const subHeaderColor = medal !== 'none' ? k.rgb(255, 180, 0) : k.rgb(120, 120, 120);
       const subHeader = k.add([
-        k.text(subHeaderText, { size: 24 }),
-        k.pos(400, 180),
+        k.text(subHeaderText, { size: 16 }),
+        k.pos(200, 170),
         k.anchor('center'),
         k.color(subHeaderColor),
         k.opacity(1),
@@ -133,8 +133,8 @@ export function createResultScene(k: KaboomCtx): void {
 
     // Velocityラベル
     k.add([
-      k.text('Total Velocity', { size: 20 }),
-      k.pos(400, 230),
+      k.text('Total Velocity', { size: 16 }),
+      k.pos(200, 210),
       k.anchor('center'),
       k.color(100, 100, 100),
       k.z(10),
@@ -143,8 +143,8 @@ export function createResultScene(k: KaboomCtx): void {
     // Velocity値（アニメーション付き）
     let animatedScore = 0;
     const scoreText = k.add([
-      k.text('0', { size: 80 }),
-      k.pos(400, 300),
+      k.text('0', { size: 64 }),
+      k.pos(200, 270),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.z(10),
@@ -163,8 +163,8 @@ export function createResultScene(k: KaboomCtx): void {
 
     // pts表示
     k.add([
-      k.text('pts', { size: 24 }),
-      k.pos(400, 360),
+      k.text('pts', { size: 20 }),
+      k.pos(200, 320),
       k.anchor('center'),
       k.color(100, 100, 100),
       k.z(10),
@@ -173,8 +173,8 @@ export function createResultScene(k: KaboomCtx): void {
     // クリアライン表示
     const hasMedal = medal !== 'none';
     k.add([
-      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 14 }),
-      k.pos(400, 395),
+      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
+      k.pos(200, 355),
       k.anchor('center'),
       k.color(hasMedal ? WIN_COLOR.r : 150, hasMedal ? WIN_COLOR.g : 150, hasMedal ? WIN_COLOR.b : 150),
       k.z(10),
@@ -184,8 +184,8 @@ export function createResultScene(k: KaboomCtx): void {
     k.wait(1.5, () => {
       // ランクレベル
       k.add([
-        k.text(`Lv.${rank.level}`, { size: 28 }),
-        k.pos(400, 450),
+        k.text(`Lv.${rank.level}`, { size: 22 }),
+        k.pos(200, 400),
         k.anchor('center'),
         k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
         k.z(10),
@@ -193,8 +193,8 @@ export function createResultScene(k: KaboomCtx): void {
 
       // ランク称号
       k.add([
-        k.text(rank.titleJa, { size: 32 }),
-        k.pos(400, 495),
+        k.text(rank.titleJa, { size: 26 }),
+        k.pos(200, 435),
         k.anchor('center'),
         k.color(60, 60, 60),
         k.z(10),
@@ -202,8 +202,8 @@ export function createResultScene(k: KaboomCtx): void {
 
       // ランク称号（英語）
       k.add([
-        k.text(rank.title, { size: 16 }),
-        k.pos(400, 530),
+        k.text(rank.title, { size: 14 }),
+        k.pos(200, 465),
         k.anchor('center'),
         k.color(120, 120, 120),
         k.z(10),
@@ -212,8 +212,8 @@ export function createResultScene(k: KaboomCtx): void {
 
     // 統計情報
     k.add([
-      k.text(`Blocks Dropped: ${params.blocksDropped}`, { size: 14 }),
-      k.pos(400, 580),
+      k.text(`Blocks Dropped: ${params.blocksDropped}`, { size: 12 }),
+      k.pos(200, 510),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),
@@ -221,8 +221,8 @@ export function createResultScene(k: KaboomCtx): void {
 
     // 最高記録表示
     k.add([
-      k.text(`High Score: ${Math.max(previousHigh, finalScore)} pt`, { size: 14 }),
-      k.pos(400, 605),
+      k.text(`High Score: ${Math.max(previousHigh, finalScore)} pt`, { size: 12 }),
+      k.pos(200, 530),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),
@@ -230,8 +230,8 @@ export function createResultScene(k: KaboomCtx): void {
 
     // RETRYボタン
     const retryBtn = k.add([
-      k.rect(200, 50, { radius: 8 }),
-      k.pos(400, 680),
+      k.rect(180, 45, { radius: 8 }),
+      k.pos(200, 600),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.area(),
@@ -240,8 +240,8 @@ export function createResultScene(k: KaboomCtx): void {
     ]);
 
     k.add([
-      k.text('RETRY', { size: 24 }),
-      k.pos(400, 680),
+      k.text('RETRY', { size: 20 }),
+      k.pos(200, 600),
       k.anchor('center'),
       k.color(255, 255, 255),
       k.z(11),
@@ -276,17 +276,17 @@ export function createResultScene(k: KaboomCtx): void {
         if (retried) return;
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
-        // キャンバス座標に変換（800x800のゲーム座標系）
-        const scaleX = 800 / rect.width;
+        // キャンバス座標に変換（400x800のゲーム座標系）
+        const scaleX = 400 / rect.width;
         const scaleY = 800 / rect.height;
         const x = (touch.clientX - rect.left) * scaleX;
         const y = (touch.clientY - rect.top) * scaleY;
 
-        // ボタン領域チェック（400, 680 中心、200x50）
-        const btnX = 400;
-        const btnY = 680;
-        const hw = 100;
-        const hh = 25;
+        // ボタン領域チェック（200, 600 中心、180x45）
+        const btnX = 200;
+        const btnY = 600;
+        const hw = 90;
+        const hh = 22;
         if (x >= btnX - hw && x <= btnX + hw &&
             y >= btnY - hh && y <= btnY + hh) {
           e.preventDefault();

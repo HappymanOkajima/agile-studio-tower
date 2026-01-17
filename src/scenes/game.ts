@@ -56,7 +56,7 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
 
     // 白背景
     k.add([
-      k.rect(800, 800),
+      k.rect(400, 800),
       k.pos(0, 0),
       k.color(255, 255, 255),
       k.z(0),

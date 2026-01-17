@@ -55,8 +55,8 @@ export function generateBlockConfig(
       if (imageData) {
         // 画像のアスペクト比を維持してスケール
         const aspectRatio = imageData.height / imageData.width;
-        const maxWidth = 120;
-        const maxHeight = 80;
+        const maxWidth = 100;  // 縦長レイアウト用に縮小
+        const maxHeight = 70;
 
         // 幅と高さの両方の上限を考慮してアスペクト比を保つ
         let scaledWidth = Math.min(baseWidth * 1.2, maxWidth);
@@ -94,13 +94,13 @@ export function generateBlockConfig(
       let height: number;
 
       if (isTall) {
-        // 縦長ブロック（不安定）
-        width = Math.max(minSizeForText, 35 + Math.random() * 25);
-        height = 55 + Math.random() * 45;
+        // 縦長ブロック（不安定）- 縦長レイアウト用に縮小
+        width = Math.max(minSizeForText, 30 + Math.random() * 25);
+        height = 50 + Math.random() * 40;
       } else {
-        // 横長ブロック（安定）
-        width = Math.max(minSizeForText, 60 + Math.random() * 60);
-        height = 20 + Math.random() * 20;
+        // 横長ブロック（安定）- 縦長レイアウト用に縮小
+        width = Math.max(minSizeForText, 50 + Math.random() * 50);
+        height = 18 + Math.random() * 18;
       }
 
       return {

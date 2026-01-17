@@ -8,7 +8,7 @@ export function createTitleScene(k: KaboomCtx): void {
   k.scene('title', () => {
     // 白背景
     k.add([
-      k.rect(800, 800),
+      k.rect(400, 800),
       k.pos(0, 0),
       k.color(255, 255, 255),
       k.z(0),
@@ -19,8 +19,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // タイトル: AGILE STUDIO
     k.add([
-      k.text('AGILE STUDIO', { size: 42 }),
-      k.pos(400, 280),
+      k.text('AGILE STUDIO', { size: 28 }),
+      k.pos(200, 250),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.z(10),
@@ -28,8 +28,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // タイトル: TOWER
     k.add([
-      k.text('TOWER', { size: 72 }),
-      k.pos(400, 350),
+      k.text('TOWER', { size: 52 }),
+      k.pos(200, 310),
       k.anchor('center'),
       k.color(60, 60, 60),
       k.z(10),
@@ -37,8 +37,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // サブタイトル
     k.add([
-      k.text('~積み上げろ！アジャイルの塔~', { size: 18 }),
-      k.pos(400, 410),
+      k.text('~積み上げろ！アジャイルの塔~', { size: 12 }),
+      k.pos(200, 360),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),
@@ -46,8 +46,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // スタートボタン背景
     const startBtn = k.add([
-      k.rect(260, 60, { radius: 8 }),
-      k.pos(400, 520),
+      k.rect(200, 50, { radius: 8 }),
+      k.pos(200, 450),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.area(),
@@ -57,8 +57,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // スタートボタンテキスト
     k.add([
-      k.text('SPRINT START', { size: 26 }),
-      k.pos(400, 520),
+      k.text('SPRINT START', { size: 20 }),
+      k.pos(200, 450),
       k.anchor('center'),
       k.color(255, 255, 255),
       k.z(11),
@@ -90,8 +90,8 @@ export function createTitleScene(k: KaboomCtx): void {
       // ボタン領域内のタッチかチェック
       const touch = k.mousePos();
       const btnPos = startBtn.pos;
-      const hw = 130; // 幅の半分
-      const hh = 30;  // 高さの半分
+      const hw = 100; // 幅の半分
+      const hh = 25;  // 高さの半分
       if (touch.x >= btnPos.x - hw && touch.x <= btnPos.x + hw &&
           touch.y >= btnPos.y - hh && touch.y <= btnPos.y + hh) {
         startGame();
@@ -105,16 +105,16 @@ export function createTitleScene(k: KaboomCtx): void {
         if (gameStarted) return;
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
-        // キャンバス座標に変換（800x800のゲーム座標系）
-        const scaleX = 800 / rect.width;
+        // キャンバス座標に変換（400x800のゲーム座標系）
+        const scaleX = 400 / rect.width;
         const scaleY = 800 / rect.height;
         const x = (touch.clientX - rect.left) * scaleX;
         const y = (touch.clientY - rect.top) * scaleY;
 
         // ボタン領域チェック
         const btnPos = startBtn.pos;
-        const hw = 130;
-        const hh = 30;
+        const hw = 100;
+        const hh = 25;
         if (x >= btnPos.x - hw && x <= btnPos.x + hw &&
             y >= btnPos.y - hh && y <= btnPos.y + hh) {
           e.preventDefault();
@@ -129,24 +129,24 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // 操作説明
     k.add([
-      k.text('Click or Tap to drop blocks', { size: 14 }),
-      k.pos(400, 620),
+      k.text('Tap to drop blocks', { size: 11 }),
+      k.pos(200, 520),
       k.anchor('center'),
       k.color(150, 150, 150),
       k.z(10),
     ]);
 
     k.add([
-      k.text('Stack 10 blocks as high as you can!', { size: 14 }),
-      k.pos(400, 645),
+      k.text('Stack 10 blocks high!', { size: 11 }),
+      k.pos(200, 540),
       k.anchor('center'),
       k.color(150, 150, 150),
       k.z(10),
     ]);
 
     k.add([
-      k.text('If a block falls off, game over!', { size: 14 }),
-      k.pos(400, 670),
+      k.text('Block falls = Game Over!', { size: 11 }),
+      k.pos(200, 560),
       k.anchor('center'),
       k.color(180, 100, 100),
       k.z(10),
@@ -154,8 +154,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // クリアライン表示
     k.add([
-      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
-      k.pos(400, 710),
+      k.text(`CLEAR: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 10 }),
+      k.pos(200, 590),
       k.anchor('center'),
       k.color(50, 180, 50),
       k.z(10),
@@ -171,35 +171,34 @@ function createRankingDisplay(k: KaboomCtx): void {
   const ranking = getRanking();
   if (ranking.length === 0) return;
 
-  const startX = 650;
-  const startY = 200;
+  const startX = 200;
+  const startY = 640;
 
   // ランキングタイトル
   k.add([
-    k.text('RANKING', { size: 16 }),
+    k.text('RANKING', { size: 12 }),
     k.pos(startX, startY),
     k.anchor('center'),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.z(10),
   ]);
 
-  // 各エントリー
-  ranking.forEach((entry, index) => {
-    const y = startY + 30 + index * 28;
+  // 各エントリー（横並び表示、最大3つ）
+  const displayRanking = ranking.slice(0, 3);
+  displayRanking.forEach((entry, index) => {
+    const y = startY + 25 + index * 24;
 
     // 順位
     const rankColors = [
       { r: 255, g: 215, b: 0 },   // 1位: 金
       { r: 192, g: 192, b: 192 }, // 2位: 銀
       { r: 205, g: 127, b: 50 },  // 3位: 銅
-      { r: 100, g: 100, b: 100 }, // 4位以下
-      { r: 100, g: 100, b: 100 },
     ];
     const color = rankColors[index];
 
     k.add([
-      k.text(`${index + 1}.`, { size: 14 }),
-      k.pos(startX - 60, y),
+      k.text(`${index + 1}.`, { size: 11 }),
+      k.pos(startX - 80, y),
       k.anchor('left'),
       k.color(color.r, color.g, color.b),
       k.z(10),
@@ -207,8 +206,8 @@ function createRankingDisplay(k: KaboomCtx): void {
 
     // スコア
     k.add([
-      k.text(`${entry.score} pt`, { size: 14 }),
-      k.pos(startX - 35, y),
+      k.text(`${entry.score} pt`, { size: 11 }),
+      k.pos(startX - 55, y),
       k.anchor('left'),
       k.color(80, 80, 80),
       k.z(10),
@@ -218,8 +217,8 @@ function createRankingDisplay(k: KaboomCtx): void {
     const date = new Date(entry.date);
     const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
     k.add([
-      k.text(dateStr, { size: 10 }),
-      k.pos(startX + 45, y + 2),
+      k.text(dateStr, { size: 9 }),
+      k.pos(startX + 40, y + 1),
       k.anchor('left'),
       k.color(140, 140, 140),
       k.z(10),
@@ -230,9 +229,9 @@ function createRankingDisplay(k: KaboomCtx): void {
 // デモ用の落下ブロックアニメーション
 function createDemoAnimation(k: KaboomCtx): void {
   const spawnDemoBlock = () => {
-    const x = 100 + Math.random() * 600;
-    const width = 40 + Math.random() * 80;
-    const height = 25 + Math.random() * 25;
+    const x = 50 + Math.random() * 300;  // 400幅用に調整
+    const width = 30 + Math.random() * 60;
+    const height = 20 + Math.random() * 20;
 
     const block = k.add([
       k.rect(width, height),

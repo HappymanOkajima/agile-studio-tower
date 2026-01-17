@@ -22,8 +22,8 @@ const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 export function createHUD(k: KaboomCtx): HUDElements {
   // Blocks ラベル（左上）
   const blocksLabel = k.add([
-    k.text('Blocks', { size: 14 }),
-    k.pos(20, 15),
+    k.text('Blocks', { size: 12 }),
+    k.pos(10, 12),
     k.color(100, 100, 100),
     k.fixed(),
     k.z(100),
@@ -31,17 +31,17 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // Blocks 値
   const blocksText = k.add([
-    k.text('10', { size: 40 }),
-    k.pos(20, 32),
+    k.text('10', { size: 32 }),
+    k.pos(10, 26),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.fixed(),
     k.z(100),
   ]);
 
-  // Timer ラベル（左上、Blocksの下）
+  // Timer ラベル（左上、Blocksの右）
   const timerLabel = k.add([
-    k.text('Time', { size: 14 }),
-    k.pos(120, 15),
+    k.text('Time', { size: 12 }),
+    k.pos(80, 12),
     k.color(100, 100, 100),
     k.fixed(),
     k.z(100),
@@ -49,8 +49,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // Timer 値
   const timerText = k.add([
-    k.text('30', { size: 40 }),
-    k.pos(120, 32),
+    k.text('30', { size: 32 }),
+    k.pos(80, 26),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.fixed(),
     k.z(100),
@@ -58,8 +58,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // Velocity ラベル（右上）
   const velocityLabel = k.add([
-    k.text('Velocity', { size: 14 }),
-    k.pos(680, 15),
+    k.text('Velocity', { size: 12 }),
+    k.pos(300, 12),
     k.color(100, 100, 100),
     k.fixed(),
     k.z(100),
@@ -67,8 +67,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // Velocity 値
   const velocityText = k.add([
-    k.text('0', { size: 40 }),
-    k.pos(680, 32),
+    k.text('0', { size: 32 }),
+    k.pos(300, 26),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.fixed(),
     k.z(100),
@@ -76,8 +76,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // 高さインジケーター背景（右端）
   const heightBar = k.add([
-    k.rect(8, 600),
-    k.pos(785, 100),
+    k.rect(6, 600),
+    k.pos(390, 100),
     k.color(230, 230, 230),
     k.fixed(),
     k.z(99),
@@ -85,8 +85,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // 高さマーカー
   const heightMarker = k.add([
-    k.rect(12, 4),
-    k.pos(783, 698),
+    k.rect(10, 4),
+    k.pos(390, 698),
     k.anchor('center'),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.fixed(),
@@ -97,7 +97,7 @@ export function createHUD(k: KaboomCtx): HUDElements {
   // 地面Y座標からWIN_THRESHOLD分上の位置
   const gameWinLineY = PHYSICS_CONFIG.groundY - GAME_CONFIG.WIN_THRESHOLD;
   const winLine = k.add([
-    k.rect(780, 2),
+    k.rect(380, 2),
     k.pos(10, gameWinLineY),
     k.color(50, 180, 50),
     k.opacity(0.6),
@@ -106,16 +106,16 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // クリアラインラベル
   const winLineLabel = k.add([
-    k.text('CLEAR LINE', { size: 10 }),
-    k.pos(740, gameWinLineY - 12),
+    k.text('CLEAR', { size: 9 }),
+    k.pos(350, gameWinLineY - 10),
     k.color(50, 180, 50),
     k.z(98),
   ]);
 
   // 風インジケーター（上部中央）
   const windIndicator = k.add([
-    k.text('WIND', { size: 12 }),
-    k.pos(400, 15),
+    k.text('WIND', { size: 10 }),
+    k.pos(200, 12),
     k.anchor('center'),
     k.color(150, 150, 150),
     k.fixed(),
@@ -124,8 +124,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // 風の矢印
   const windArrow = k.add([
-    k.text('< >', { size: 20 }),
-    k.pos(400, 38),
+    k.text('< >', { size: 16 }),
+    k.pos(200, 32),
     k.anchor('center'),
     k.color(100, 180, 220),
     k.fixed(),

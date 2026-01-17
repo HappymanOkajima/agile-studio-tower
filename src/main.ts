@@ -29,7 +29,7 @@ async function main() {
   // Kaboom.js 初期化
   const gameArea = document.getElementById('game-area');
   const k = kaboom({
-    width: 800,
+    width: 400,
     height: 800,
     background: [255, 255, 255],
     debug: false,
@@ -39,21 +39,21 @@ async function main() {
 
   // ローディング表示
   k.add([
-    k.rect(800, 800),
+    k.rect(400, 800),
     k.pos(0, 0),
     k.color(255, 255, 255),
   ]);
 
   const loadingText = k.add([
     k.text('Loading...', { size: 28 }),
-    k.pos(400, 380),
+    k.pos(200, 380),
     k.anchor('center'),
     k.color(150, 150, 150),
   ]);
 
   const loadingSubText = k.add([
-    k.text('Preparing blocks from agile-studio.jp', { size: 14 }),
-    k.pos(400, 420),
+    k.text('Preparing blocks from agile-studio.jp', { size: 12 }),
+    k.pos(200, 420),
     k.anchor('center'),
     k.color(180, 180, 180),
   ]);

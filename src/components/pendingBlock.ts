@@ -2,8 +2,8 @@ import type { KaboomCtx, GameObj, BlockConfig } from '../types';
 import { PHYSICS_CONFIG, getGroundTilt } from '../systems/physics';
 
 const SPAWN_Y = 60;       // ブロックの初期Y位置
-const LEFT_BOUND = 100;   // 左端の折り返し位置
-const RIGHT_BOUND = 700;  // 右端の折り返し位置
+const LEFT_BOUND = 60;    // 左端の折り返し位置（縦長用）
+const RIGHT_BOUND = 340;  // 右端の折り返し位置（縦長用）
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 
@@ -34,7 +34,7 @@ export function createPendingBlock(
   const rotSpeed = (Math.random() < 0.5 ? 1 : -1) * (60 + Math.random() * 80);
 
   const components: any[] = [
-    k.pos(400, SPAWN_Y),
+    k.pos(200, SPAWN_Y),
     k.anchor('center'),
     k.rotate(0),  // 回転コンポーネント追加
     k.z(50),
