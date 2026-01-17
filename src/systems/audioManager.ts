@@ -166,11 +166,11 @@ class AudioManager {
     this.windNoiseSource.buffer = buffer;
     this.windNoiseSource.loop = true;
 
-    // ローパスフィルター（風らしい音にする）
+    // バンドパスフィルター（「ヒュー」という高めの風音にする）
     this.windFilterNode = this.context.createBiquadFilter();
-    this.windFilterNode.type = 'lowpass';
-    this.windFilterNode.frequency.setValueAtTime(400, this.context.currentTime);
-    this.windFilterNode.Q.setValueAtTime(1, this.context.currentTime);
+    this.windFilterNode.type = 'bandpass';
+    this.windFilterNode.frequency.setValueAtTime(800, this.context.currentTime);
+    this.windFilterNode.Q.setValueAtTime(2, this.context.currentTime);
 
     // ゲインノード
     this.windGainNode = this.context.createGain();
@@ -194,8 +194,8 @@ class AudioManager {
     const targetVolume = absWind * 0.08;
     this.windGainNode.gain.setTargetAtTime(targetVolume, this.context.currentTime, 0.1);
 
-    // 風の強さに応じてフィルター周波数も変化（強い風ほど高い音も通す）
-    const targetFreq = 300 + absWind * 400;
+    // 風の強さに応じてフィルター周波数も変化（強い風ほど高い「ヒュー」音に）
+    const targetFreq = 600 + absWind * 800; // 600Hz〜1400Hz（高めの風音）
     this.windFilterNode.frequency.setTargetAtTime(targetFreq, this.context.currentTime, 0.1);
   }
 
