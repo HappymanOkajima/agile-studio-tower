@@ -179,10 +179,10 @@ export function createResultScene(k: KaboomCtx): void {
     const pageLinks = getPageLinks();
     const randomLink = pageLinks.length > 0 ? pageLinks[Math.floor(Math.random() * pageLinks.length)] : null;
     if (randomLink) {
-      // リンクラベル
+      // リンクラベル（Y=400）
       k.add([
         k.text('Agile Studioのコンテンツをチェック!', { size: 12 }),
-        k.pos(200, 420),
+        k.pos(200, 400),
         k.anchor('center'),
         k.color(100, 100, 100),
         k.z(10),
@@ -202,15 +202,15 @@ export function createResultScene(k: KaboomCtx): void {
           : randomLink.title;
         link.textContent = displayTitle;
 
-        // スタイル設定（リンクらしく）
+        // スタイル設定（リンクらしく）- Y=450 (56.25%)
         link.style.cssText = `
           position: absolute;
           left: 50%;
-          top: 58.75%;
+          top: 56.25%;
           transform: translate(-50%, -50%);
           width: 80%;
           max-width: 320px;
-          padding: 12px 16px;
+          padding: 8px 16px;
           background: transparent;
           color: rgb(${ACCENT_COLOR.r}, ${ACCENT_COLOR.g}, ${ACCENT_COLOR.b});
           text-decoration: underline;
