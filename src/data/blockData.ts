@@ -72,10 +72,11 @@ export function extractPageLinks(crawlData: CrawlData): PageLink[] {
   const links: PageLink[] = [];
 
   for (const page of crawlData.pages) {
-    // トップページ、プライバシーポリシー、contactは除外
+    // トップページ、プライバシーポリシー、contact、peopleは除外
     if (page.path === '/' ||
         page.path === '/privacy-policy' ||
-        page.path === '/contact') {
+        page.path === '/contact' ||
+        page.path.startsWith('/people')) {
       continue;
     }
 
