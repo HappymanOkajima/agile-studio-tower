@@ -82,6 +82,19 @@ export function createTitleScene(k: KaboomCtx): void {
 
     startBtn.onClick(startGame);
 
+    // タッチでも開始（iOS対応）
+    k.onTouchStart(() => {
+      // ボタン領域内のタッチかチェック
+      const touch = k.mousePos();
+      const btnPos = startBtn.pos;
+      const hw = 130; // 幅の半分
+      const hh = 30;  // 高さの半分
+      if (touch.x >= btnPos.x - hw && touch.x <= btnPos.x + hw &&
+          touch.y >= btnPos.y - hh && touch.y <= btnPos.y + hh) {
+        startGame();
+      }
+    });
+
     // スペースキーでも開始
     k.onKeyPress('space', startGame);
 

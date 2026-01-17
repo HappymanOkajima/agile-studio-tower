@@ -9,12 +9,20 @@ import { audioManager } from './systems/audioManager';
 
 // モバイル向けスクロール防止
 function preventMobileScroll(): void {
-  // タッチ操作でのスクロール・ズームを防止
-  document.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-  }, { passive: false });
+  // ゲームエリアのみスクロール防止（キャンバス上のタッチ）
+  const gameArea = document.getElementById('game-area');
+  if (gameArea) {
+    gameArea.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+    }, { passive: false });
+  }
 
-  // ダブルタップズーム防止
+  // ピンチズーム防止（iOS）
+  document.addEventListener('gesturestart', (e) => {
+    e.preventDefault();
+  });
+
+  // ダブルタップズーム防止（iOS Safari）
   let lastTouchEnd = 0;
   document.addEventListener('touchend', (e) => {
     const now = Date.now();
@@ -23,11 +31,6 @@ function preventMobileScroll(): void {
     }
     lastTouchEnd = now;
   }, { passive: false });
-
-  // ピンチズーム防止
-  document.addEventListener('gesturestart', (e) => {
-    e.preventDefault();
-  });
 }
 
 async function main() {
