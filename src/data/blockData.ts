@@ -1,7 +1,9 @@
 import type { CrawlData, BlockSource } from '../types';
 
 export async function loadCrawlData(): Promise<CrawlData> {
-  const response = await fetch('/data/sites/agile-studio.json');
+  // Viteのベースパスを考慮（GitHub Pages対応）
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const response = await fetch(`${baseUrl}data/sites/agile-studio.json`);
   if (!response.ok) {
     throw new Error(`Failed to load crawl data: ${response.status}`);
   }
