@@ -1,6 +1,6 @@
 import type { KaboomCtx, ResultParams, MedalType } from '../types';
 import { audioManager } from '../systems/audioManager';
-import { saveHighScore, getHighScore, addToRanking, GAME_CONFIG, getPageLinks } from '../systems/scoreManager';
+import { saveHighScore, addToRanking, GAME_CONFIG, getPageLinks } from '../systems/scoreManager';
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 const LOSE_COLOR = { r: 180, g: 50, b: 50 };    // 赤（残念）
@@ -32,7 +32,6 @@ export function createResultScene(k: KaboomCtx): void {
     const displayScore = params.passedWinLine ? params.score : finalScore;
 
     // 最高記録を更新チェック（WIN LINE超えていればスコアを記録）
-    const previousHigh = getHighScore();
     const scoreToSave = params.passedWinLine ? params.score : finalScore;
     const isNewRecord = saveHighScore(scoreToSave);
 
@@ -167,9 +166,9 @@ export function createResultScene(k: KaboomCtx): void {
       k.z(10),
     ]);
 
-    // 統計情報
+    // 統計情報（ブロック数のみ）
     k.add([
-      k.text(`Blocks: ${params.blocksDropped}  |  High: ${Math.max(previousHigh, finalScore)} pt`, { size: 11 }),
+      k.text(`Blocks: ${params.blocksDropped}`, { size: 11 }),
       k.pos(200, 360),
       k.anchor('center'),
       k.color(120, 120, 120),
@@ -183,7 +182,7 @@ export function createResultScene(k: KaboomCtx): void {
 
       // リンクラベル
       k.add([
-        k.text('Check this out!', { size: 12 }),
+        k.text('Agile Studioの記事をチェック!', { size: 12 }),
         k.pos(200, 420),
         k.anchor('center'),
         k.color(100, 100, 100),
