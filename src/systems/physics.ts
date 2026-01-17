@@ -2,10 +2,10 @@ import type { KaboomCtx, GameObj } from 'kaboom';
 
 export const PHYSICS_CONFIG = {
   gravity: 2000,           // 重力（px/s²）
-  groundY: 700,            // 地面のY座標（画面高800に合わせて余裕を持たせる）
+  groundY: 650,            // 地面のY座標（下部に余裕を持たせる）
   groundWidth: 280,        // 地面の幅（縦長用に少し狭め）
   groundHeight: 16,        // 地面の高さ
-  fallThreshold: 780,      // この高さを超えたらゲームオーバー
+  fallThreshold: 750,      // この高さを超えたらゲームオーバー
   leftBound: 0,            // 左端
   rightBound: 400,         // 右端（400幅）
   // シーソー設定

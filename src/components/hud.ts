@@ -76,8 +76,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
 
   // 高さインジケーター背景（右端）
   const heightBar = k.add([
-    k.rect(6, 600),
-    k.pos(390, 100),
+    k.rect(6, 550),
+    k.pos(390, 70),
     k.color(230, 230, 230),
     k.fixed(),
     k.z(99),
@@ -86,7 +86,7 @@ export function createHUD(k: KaboomCtx): HUDElements {
   // 高さマーカー
   const heightMarker = k.add([
     k.rect(10, 4),
-    k.pos(390, 698),
+    k.pos(390, 618),
     k.anchor('center'),
     k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
     k.fixed(),
@@ -176,9 +176,9 @@ export function updateHUD(k: KaboomCtx, hud: HUDElements, state: GameState): voi
   // Velocity更新
   hud.velocityText.text = String(state.velocity);
 
-  // 高さマーカー更新（0〜600の範囲を600pxにマッピング）
-  const normalizedHeight = Math.min(state.velocity / 600, 1);
-  const markerY = 698 - normalizedHeight * 598;
+  // 高さマーカー更新（0〜550の範囲を550pxにマッピング）
+  const normalizedHeight = Math.min(state.velocity / 550, 1);
+  const markerY = 618 - normalizedHeight * 548;
   hud.heightMarker.pos.y = markerY;
 
   // 風インジケーター更新

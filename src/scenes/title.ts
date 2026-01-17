@@ -20,7 +20,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // タイトル: AGILE STUDIO
     k.add([
       k.text('AGILE STUDIO', { size: 28 }),
-      k.pos(200, 250),
+      k.pos(200, 200),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.z(10),
@@ -29,7 +29,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // タイトル: TOWER
     k.add([
       k.text('TOWER', { size: 52 }),
-      k.pos(200, 310),
+      k.pos(200, 260),
       k.anchor('center'),
       k.color(60, 60, 60),
       k.z(10),
@@ -38,7 +38,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // サブタイトル
     k.add([
       k.text('~積み上げろ！アジャイルの塔~', { size: 12 }),
-      k.pos(200, 360),
+      k.pos(200, 310),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),
@@ -47,7 +47,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // スタートボタン背景
     const startBtn = k.add([
       k.rect(200, 50, { radius: 8 }),
-      k.pos(200, 450),
+      k.pos(200, 390),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
       k.area(),
@@ -58,7 +58,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // スタートボタンテキスト
     k.add([
       k.text('SPRINT START', { size: 20 }),
-      k.pos(200, 450),
+      k.pos(200, 390),
       k.anchor('center'),
       k.color(255, 255, 255),
       k.z(11),
@@ -130,7 +130,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // 操作説明
     k.add([
       k.text('Tap to drop blocks', { size: 11 }),
-      k.pos(200, 520),
+      k.pos(200, 460),
       k.anchor('center'),
       k.color(150, 150, 150),
       k.z(10),
@@ -138,7 +138,7 @@ export function createTitleScene(k: KaboomCtx): void {
 
     k.add([
       k.text('Stack 10 blocks high!', { size: 11 }),
-      k.pos(200, 540),
+      k.pos(200, 480),
       k.anchor('center'),
       k.color(150, 150, 150),
       k.z(10),
@@ -146,7 +146,7 @@ export function createTitleScene(k: KaboomCtx): void {
 
     k.add([
       k.text('Block falls = Game Over!', { size: 11 }),
-      k.pos(200, 560),
+      k.pos(200, 500),
       k.anchor('center'),
       k.color(180, 100, 100),
       k.z(10),
@@ -155,7 +155,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // クリアライン表示
     k.add([
       k.text(`CLEAR: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 10 }),
-      k.pos(200, 590),
+      k.pos(200, 530),
       k.anchor('center'),
       k.color(50, 180, 50),
       k.z(10),
@@ -172,7 +172,7 @@ function createRankingDisplay(k: KaboomCtx): void {
   if (ranking.length === 0) return;
 
   const startX = 200;
-  const startY = 640;
+  const startY = 580;
 
   // ランキングタイトル
   k.add([
