@@ -2,6 +2,14 @@
 
 Webサイトのクロールデータを使った物理パズルゲーム。シーソーの上にブロックを積み上げ、制限時間内に高さを競う。
 
+## Play Now
+
+**[https://happymanokajima.github.io/agile-studio-tower/](https://happymanokajima.github.io/agile-studio-tower/)**
+
+スマホでプレイ:
+
+![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://happymanokajima.github.io/agile-studio-tower/)
+
 ## ゲーム概要
 
 - **目標**: 30秒以内に10個のブロックを積み上げ、CLEAR LINE（200pt）を超える
