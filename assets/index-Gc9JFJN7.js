@@ -4113,9 +4113,9 @@ function createRankingDisplay(k) {
 }
 function createDemoAnimation(k) {
   const spawnDemoBlock = () => {
-    const x = 100 + Math.random() * 600;
-    const width = 40 + Math.random() * 80;
-    const height = 25 + Math.random() * 25;
+    const x = 50 + Math.random() * 300;
+    const width = 30 + Math.random() * 60;
+    const height = 20 + Math.random() * 20;
     const block = k.add([
       k.rect(width, height),
       k.pos(x, -50),
