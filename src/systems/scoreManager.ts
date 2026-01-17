@@ -1,8 +1,12 @@
 // スコア記録管理システム
+import type { PageLink } from '../data/blockData';
 
 const STORAGE_KEY = 'agile-tower-highscore';
 const RANKING_KEY = 'agile-tower-ranking';
 const MAX_RANKING_ENTRIES = 5;
+
+// ページリンクのキャッシュ
+let cachedPageLinks: PageLink[] = [];
 
 export const GAME_CONFIG = {
   WIN_THRESHOLD: 200,  // クリアライン（この点数以上でクリア）
@@ -101,4 +105,14 @@ export function resetHighScore(): void {
   } catch {
     // LocalStorageが使えない環境
   }
+}
+
+// ページリンクを設定（ゲーム起動時にクロールデータから設定）
+export function setPageLinks(links: PageLink[]): void {
+  cachedPageLinks = links;
+}
+
+// ページリンクを取得
+export function getPageLinks(): PageLink[] {
+  return cachedPageLinks;
 }

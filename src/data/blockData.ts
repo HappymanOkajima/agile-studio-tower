@@ -61,6 +61,34 @@ export function extractBlockSources(crawlData: CrawlData): Omit<BlockSource, 'lo
   };
 }
 
+// ページURLとタイトルを抽出
+export interface PageLink {
+  url: string;
+  title: string;
+  path: string;
+}
+
+export function extractPageLinks(crawlData: CrawlData): PageLink[] {
+  const links: PageLink[] = [];
+
+  for (const page of crawlData.pages) {
+    // トップページ、プライバシーポリシー、contactは除外
+    if (page.path === '/' ||
+        page.path === '/privacy-policy' ||
+        page.path === '/contact') {
+      continue;
+    }
+
+    links.push({
+      url: crawlData.baseUrl + page.path,
+      title: page.title.split('|')[0].trim(),  // 最初の部分だけ取得
+      path: page.path,
+    });
+  }
+
+  return links;
+}
+
 // 画像URLからアスペクト比を推測（ファイル名からサイズ情報を抽出）
 export function estimateImageSize(url: string): { width: number; height: number } {
   // URLからサイズ情報を抽出する試み（例: s-617x617, s-1200x630）

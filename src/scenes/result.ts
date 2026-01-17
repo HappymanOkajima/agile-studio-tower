@@ -1,10 +1,8 @@
 import type { KaboomCtx, ResultParams, MedalType } from '../types';
-import { getRankForScore } from '../data/rankings';
 import { audioManager } from '../systems/audioManager';
-import { saveHighScore, getHighScore, addToRanking, GAME_CONFIG } from '../systems/scoreManager';
+import { saveHighScore, getHighScore, addToRanking, GAME_CONFIG, getPageLinks } from '../systems/scoreManager';
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
-const WIN_COLOR = { r: 50, g: 180, b: 50 };     // 緑（当選）
 const LOSE_COLOR = { r: 180, g: 50, b: 50 };    // 赤（残念）
 
 // メダル色
@@ -32,7 +30,6 @@ export function createResultScene(k: KaboomCtx): void {
     const finalScore = (params.reason === 'blockFell' || params.reason === 'timeout') ? 0 : params.score;
     // 表示用スコア（WIN LINE超えていたら記録する）
     const displayScore = params.passedWinLine ? params.score : finalScore;
-    const rank = getRankForScore(displayScore);
 
     // 最高記録を更新チェック（WIN LINE超えていればスコアを記録）
     const previousHigh = getHighScore();
@@ -170,63 +167,66 @@ export function createResultScene(k: KaboomCtx): void {
       k.z(10),
     ]);
 
-    // クリアライン表示
-    const hasMedal = medal !== 'none';
-    k.add([
-      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
-      k.pos(200, 355),
-      k.anchor('center'),
-      k.color(hasMedal ? WIN_COLOR.r : 150, hasMedal ? WIN_COLOR.g : 150, hasMedal ? WIN_COLOR.b : 150),
-      k.z(10),
-    ]);
-
-    // ランク表示（遅延表示）
-    k.wait(1.5, () => {
-      // ランクレベル
-      k.add([
-        k.text(`Lv.${rank.level}`, { size: 22 }),
-        k.pos(200, 400),
-        k.anchor('center'),
-        k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
-        k.z(10),
-      ]);
-
-      // ランク称号
-      k.add([
-        k.text(rank.titleJa, { size: 26 }),
-        k.pos(200, 435),
-        k.anchor('center'),
-        k.color(60, 60, 60),
-        k.z(10),
-      ]);
-
-      // ランク称号（英語）
-      k.add([
-        k.text(rank.title, { size: 14 }),
-        k.pos(200, 465),
-        k.anchor('center'),
-        k.color(120, 120, 120),
-        k.z(10),
-      ]);
-    });
-
     // 統計情報
     k.add([
-      k.text(`Blocks Dropped: ${params.blocksDropped}`, { size: 12 }),
-      k.pos(200, 510),
+      k.text(`Blocks: ${params.blocksDropped}  |  High: ${Math.max(previousHigh, finalScore)} pt`, { size: 11 }),
+      k.pos(200, 360),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),
     ]);
 
-    // 最高記録表示
-    k.add([
-      k.text(`High Score: ${Math.max(previousHigh, finalScore)} pt`, { size: 12 }),
-      k.pos(200, 530),
-      k.anchor('center'),
-      k.color(120, 120, 120),
-      k.z(10),
-    ]);
+    // Webリンクボタン（ランダムなページへ）
+    const pageLinks = getPageLinks();
+    if (pageLinks.length > 0) {
+      const randomLink = pageLinks[Math.floor(Math.random() * pageLinks.length)];
+
+      // リンクラベル
+      k.add([
+        k.text('Check this out!', { size: 12 }),
+        k.pos(200, 420),
+        k.anchor('center'),
+        k.color(100, 100, 100),
+        k.z(10),
+      ]);
+
+      // リンクボタン
+      const linkBtn = k.add([
+        k.rect(320, 50, { radius: 8 }),
+        k.pos(200, 470),
+        k.anchor('center'),
+        k.color(60, 60, 60),
+        k.area(),
+        k.z(10),
+        'linkBtn',
+      ]);
+
+      // リンクタイトル（短く切り詰め）
+      const displayTitle = randomLink.title.length > 20
+        ? randomLink.title.substring(0, 20) + '...'
+        : randomLink.title;
+      k.add([
+        k.text(displayTitle, { size: 14 }),
+        k.pos(200, 470),
+        k.anchor('center'),
+        k.color(255, 255, 255),
+        k.z(11),
+      ]);
+
+      // ホバーエフェクト
+      linkBtn.onHover(() => {
+        linkBtn.color = k.rgb(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b);
+      });
+
+      linkBtn.onHoverEnd(() => {
+        linkBtn.color = k.rgb(60, 60, 60);
+      });
+
+      // クリックでURLを開く
+      linkBtn.onClick(() => {
+        window.open(randomLink.url, '_blank');
+      });
+    }
 
     // RETRYボタン
     const retryBtn = k.add([

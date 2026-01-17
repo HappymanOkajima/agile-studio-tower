@@ -1,6 +1,7 @@
 import kaboom from 'kaboom';
 import type { BlockSource } from './types';
-import { loadCrawlData, extractBlockSources } from './data/blockData';
+import { loadCrawlData, extractBlockSources, extractPageLinks } from './data/blockData';
+import { setPageLinks } from './systems/scoreManager';
 import { preloadBase64Images } from './utils/imageLoader';
 import { createTitleScene } from './scenes/title';
 import { createGameScene } from './scenes/game';
@@ -66,6 +67,11 @@ async function main() {
     // ブロックソースを抽出
     loadingSubText.text = 'Extracting block data...';
     const sourcesWithoutImages = extractBlockSources(crawlData);
+
+    // ページリンクを抽出して設定
+    const pageLinks = extractPageLinks(crawlData);
+    setPageLinks(pageLinks);
+    console.log(`Page links: ${pageLinks.length} available`);
 
     // Base64画像をスプライトとしてロード
     loadingSubText.text = 'Loading images...';
