@@ -177,8 +177,9 @@ export function createResultScene(k: KaboomCtx): void {
 
     // Webリンクボタン（ランダムなページへ）
     const pageLinks = getPageLinks();
-    if (pageLinks.length > 0) {
-      const randomLink = pageLinks[Math.floor(Math.random() * pageLinks.length)];
+    // ランダムリンクを1回だけ選択（タッチイベントでも同じリンクを使う）
+    const randomLink = pageLinks.length > 0 ? pageLinks[Math.floor(Math.random() * pageLinks.length)] : null;
+    if (randomLink) {
 
       // リンクラベル
       k.add([
@@ -272,7 +273,6 @@ export function createResultScene(k: KaboomCtx): void {
     const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
     if (canvas) {
       const handleNativeTouch = (e: TouchEvent) => {
-        if (retried) return;
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         // キャンバス座標に変換（400x800のゲーム座標系）
@@ -281,7 +281,22 @@ export function createResultScene(k: KaboomCtx): void {
         const x = (touch.clientX - rect.left) * scaleX;
         const y = (touch.clientY - rect.top) * scaleY;
 
-        // ボタン領域チェック（200, 600 中心、180x45）
+        // リンクボタン領域チェック（200, 470 中心、320x50）
+        if (randomLink) {
+          const linkBtnX = 200;
+          const linkBtnY = 470;
+          const linkHw = 160;
+          const linkHh = 25;
+          if (x >= linkBtnX - linkHw && x <= linkBtnX + linkHw &&
+              y >= linkBtnY - linkHh && y <= linkBtnY + linkHh) {
+            e.preventDefault();
+            window.open(randomLink.url, '_blank');
+            return;
+          }
+        }
+
+        // RETRYボタン領域チェック（200, 600 中心、180x45）
+        if (retried) return;
         const btnX = 200;
         const btnY = 600;
         const hw = 90;
