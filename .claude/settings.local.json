@@ -23,7 +23,8 @@
       "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" api repos/HappymanOkajima/agile-studio-tower/actions/runs --jq '.workflow_runs[0] | {status: .status, conclusion: .conclusion, created_at: .created_at}')",
       "Bash(gh run list:*)",
       "Bash(npm run deploy:*)",
-      "Bash(npx gh-pages:*)"
+      "Bash(npx gh-pages:*)",
+      "Bash(git rm:*)"
     ]
   }
 }

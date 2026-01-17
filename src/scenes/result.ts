@@ -202,7 +202,7 @@ export function createResultScene(k: KaboomCtx): void {
           : randomLink.title;
         link.textContent = displayTitle;
 
-        // スタイル設定
+        // スタイル設定（リンクらしく）
         link.style.cssText = `
           position: absolute;
           left: 50%;
@@ -210,14 +210,13 @@ export function createResultScene(k: KaboomCtx): void {
           transform: translate(-50%, -50%);
           width: 80%;
           max-width: 320px;
-          padding: 14px 16px;
-          background: #3c3c3c;
-          color: white;
-          text-decoration: none;
+          padding: 12px 16px;
+          background: transparent;
+          color: rgb(${ACCENT_COLOR.r}, ${ACCENT_COLOR.g}, ${ACCENT_COLOR.b});
+          text-decoration: underline;
           text-align: center;
-          font-size: 14px;
+          font-size: 15px;
           font-family: sans-serif;
-          border-radius: 8px;
           box-sizing: border-box;
           z-index: 100;
           -webkit-tap-highlight-color: transparent;
@@ -225,10 +224,10 @@ export function createResultScene(k: KaboomCtx): void {
 
         // ホバー効果
         link.addEventListener('mouseenter', () => {
-          link.style.background = `rgb(${ACCENT_COLOR.r}, ${ACCENT_COLOR.g}, ${ACCENT_COLOR.b})`;
+          link.style.opacity = '0.7';
         });
         link.addEventListener('mouseleave', () => {
-          link.style.background = '#3c3c3c';
+          link.style.opacity = '1';
         });
 
         gameArea.appendChild(link);
