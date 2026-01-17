@@ -3720,6 +3720,84 @@ function extractBlockSources(crawlData) {
     // 最大50キーワード
   };
 }
+function extractPageLinks(crawlData) {
+  const links = [];
+  for (const page of crawlData.pages) {
+    if (page.path === "/" || page.path === "/privacy-policy" || page.path === "/contact") {
+      continue;
+    }
+    links.push({
+      url: crawlData.baseUrl + page.path,
+      title: page.title.split("|")[0].trim(),
+      // 最初の部分だけ取得
+      path: page.path
+    });
+  }
+  return links;
+}
+const STORAGE_KEY = "agile-tower-highscore";
+const RANKING_KEY = "agile-tower-ranking";
+const MAX_RANKING_ENTRIES = 5;
+let cachedPageLinks = [];
+const GAME_CONFIG = {
+  WIN_THRESHOLD: 200
+  // クリアライン（この点数以上でクリア）
+};
+function getRanking() {
+  try {
+    const stored = localStorage.getItem(RANKING_KEY);
+    if (stored) {
+      const ranking = JSON.parse(stored);
+      return ranking.slice(0, MAX_RANKING_ENTRIES);
+    }
+  } catch {
+  }
+  return [];
+}
+function addToRanking(score) {
+  const ranking = getRanking();
+  const newEntry = {
+    score,
+    date: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  ranking.push(newEntry);
+  ranking.sort((a, b) => b.score - a.score);
+  const trimmed = ranking.slice(0, MAX_RANKING_ENTRIES);
+  try {
+    localStorage.setItem(RANKING_KEY, JSON.stringify(trimmed));
+  } catch {
+  }
+  const rank = trimmed.findIndex((e) => e === newEntry);
+  return rank >= 0 ? rank + 1 : -1;
+}
+function getHighScore() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const score = parseInt(stored, 10);
+      return isNaN(score) ? 0 : score;
+    }
+  } catch {
+  }
+  return 0;
+}
+function saveHighScore(score) {
+  const currentHigh = getHighScore();
+  if (score > currentHigh) {
+    try {
+      localStorage.setItem(STORAGE_KEY, String(score));
+      return true;
+    } catch {
+    }
+  }
+  return false;
+}
+function setPageLinks(links) {
+  cachedPageLinks = links;
+}
+function getPageLinks() {
+  return cachedPageLinks;
+}
 async function loadBase64AsSprite(k, base64, spriteName) {
   return new Promise((resolve) => {
     const timeoutId = setTimeout(() => {
@@ -3883,62 +3961,6 @@ class AudioManager {
   }
 }
 const audioManager = new AudioManager();
-const STORAGE_KEY = "agile-tower-highscore";
-const RANKING_KEY = "agile-tower-ranking";
-const MAX_RANKING_ENTRIES = 5;
-const GAME_CONFIG = {
-  WIN_THRESHOLD: 200
-  // クリアライン（この点数以上でクリア）
-};
-function getRanking() {
-  try {
-    const stored = localStorage.getItem(RANKING_KEY);
-    if (stored) {
-      const ranking = JSON.parse(stored);
-      return ranking.slice(0, MAX_RANKING_ENTRIES);
-    }
-  } catch {
-  }
-  return [];
-}
-function addToRanking(score) {
-  const ranking = getRanking();
-  const newEntry = {
-    score,
-    date: (/* @__PURE__ */ new Date()).toISOString()
-  };
-  ranking.push(newEntry);
-  ranking.sort((a, b) => b.score - a.score);
-  const trimmed = ranking.slice(0, MAX_RANKING_ENTRIES);
-  try {
-    localStorage.setItem(RANKING_KEY, JSON.stringify(trimmed));
-  } catch {
-  }
-  const rank = trimmed.findIndex((e) => e === newEntry);
-  return rank >= 0 ? rank + 1 : -1;
-}
-function getHighScore() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const score = parseInt(stored, 10);
-      return isNaN(score) ? 0 : score;
-    }
-  } catch {
-  }
-  return 0;
-}
-function saveHighScore(score) {
-  const currentHigh = getHighScore();
-  if (score > currentHigh) {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(score));
-      return true;
-    } catch {
-    }
-  }
-  return false;
-}
 const ACCENT_COLOR$3 = { r: 239, g: 112, b: 33 };
 function createTitleScene(k) {
   k.scene("title", () => {
@@ -4817,23 +4839,7 @@ function createGameScene(k, blockSources) {
     });
   });
 }
-const RANKINGS = [
-  { level: 1, title: "Trainee Engineer", titleJa: "見習いエンジニア", minScore: 0 },
-  { level: 2, title: "Certified Scrum Master", titleJa: "認定スクラムマスター", minScore: 100 },
-  { level: 3, title: "Agile Coach", titleJa: "アジャイルコーチ", minScore: 250 },
-  { level: 4, title: "Evangelist", titleJa: "エバンジェリスト", minScore: 400 }
-];
-function getRankForScore(score) {
-  let achievedRank = RANKINGS[0];
-  for (const rank of RANKINGS) {
-    if (score >= rank.minScore) {
-      achievedRank = rank;
-    }
-  }
-  return achievedRank;
-}
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 };
-const WIN_COLOR = { r: 50, g: 180, b: 50 };
 const LOSE_COLOR = { r: 180, g: 50, b: 50 };
 const MEDAL_COLORS = {
   gold: { r: 255, g: 215, b: 0 },
@@ -4850,7 +4856,6 @@ function createResultScene(k) {
   k.scene("result", (params) => {
     const finalScore = params.reason === "blockFell" || params.reason === "timeout" ? 0 : params.score;
     const displayScore = params.passedWinLine ? params.score : finalScore;
-    const rank = getRankForScore(displayScore);
     const previousHigh = getHighScore();
     const scoreToSave = params.passedWinLine ? params.score : finalScore;
     const isNewRecord = saveHighScore(scoreToSave);
@@ -4962,51 +4967,50 @@ function createResultScene(k) {
       k.color(100, 100, 100),
       k.z(10)
     ]);
-    const hasMedal = medal !== "none";
     k.add([
-      k.text(`CLEAR LINE: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 12 }),
-      k.pos(200, 355),
+      k.text(`Blocks: ${params.blocksDropped}  |  High: ${Math.max(previousHigh, finalScore)} pt`, { size: 11 }),
+      k.pos(200, 360),
       k.anchor("center"),
-      k.color(hasMedal ? WIN_COLOR.r : 150, hasMedal ? WIN_COLOR.g : 150, hasMedal ? WIN_COLOR.b : 150),
+      k.color(120, 120, 120),
       k.z(10)
     ]);
-    k.wait(1.5, () => {
+    const pageLinks = getPageLinks();
+    if (pageLinks.length > 0) {
+      const randomLink = pageLinks[Math.floor(Math.random() * pageLinks.length)];
       k.add([
-        k.text(`Lv.${rank.level}`, { size: 22 }),
-        k.pos(200, 400),
+        k.text("Check this out!", { size: 12 }),
+        k.pos(200, 420),
         k.anchor("center"),
-        k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
+        k.color(100, 100, 100),
         k.z(10)
       ]);
-      k.add([
-        k.text(rank.titleJa, { size: 26 }),
-        k.pos(200, 435),
+      const linkBtn = k.add([
+        k.rect(320, 50, { radius: 8 }),
+        k.pos(200, 470),
         k.anchor("center"),
         k.color(60, 60, 60),
-        k.z(10)
+        k.area(),
+        k.z(10),
+        "linkBtn"
       ]);
+      const displayTitle = randomLink.title.length > 20 ? randomLink.title.substring(0, 20) + "..." : randomLink.title;
       k.add([
-        k.text(rank.title, { size: 14 }),
-        k.pos(200, 465),
+        k.text(displayTitle, { size: 14 }),
+        k.pos(200, 470),
         k.anchor("center"),
-        k.color(120, 120, 120),
-        k.z(10)
+        k.color(255, 255, 255),
+        k.z(11)
       ]);
-    });
-    k.add([
-      k.text(`Blocks Dropped: ${params.blocksDropped}`, { size: 12 }),
-      k.pos(200, 510),
-      k.anchor("center"),
-      k.color(120, 120, 120),
-      k.z(10)
-    ]);
-    k.add([
-      k.text(`High Score: ${Math.max(previousHigh, finalScore)} pt`, { size: 12 }),
-      k.pos(200, 530),
-      k.anchor("center"),
-      k.color(120, 120, 120),
-      k.z(10)
-    ]);
+      linkBtn.onHover(() => {
+        linkBtn.color = k.rgb(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b);
+      });
+      linkBtn.onHoverEnd(() => {
+        linkBtn.color = k.rgb(60, 60, 60);
+      });
+      linkBtn.onClick(() => {
+        window.open(randomLink.url, "_blank");
+      });
+    }
     const retryBtn = k.add([
       k.rect(180, 45, { radius: 8 }),
       k.pos(200, 600),
@@ -5106,6 +5110,9 @@ async function main() {
     const crawlData = await loadCrawlData();
     loadingSubText.text = "Extracting block data...";
     const sourcesWithoutImages = extractBlockSources(crawlData);
+    const pageLinks = extractPageLinks(crawlData);
+    setPageLinks(pageLinks);
+    console.log(`Page links: ${pageLinks.length} available`);
     loadingSubText.text = "Loading images...";
     const loadedImages = await preloadBase64Images(k, sourcesWithoutImages.imageBase64);
     const blockSources = {
