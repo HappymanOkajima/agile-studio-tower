@@ -5,7 +5,6 @@ import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
 import { audioManager } from '../systems/audioManager';
 import { GAME_CONFIG } from '../systems/scoreManager';
-import { domImageOverlay } from '../utils/domImageOverlay';
 
 const TOTAL_BLOCKS = 10; // ブロック数
 const TIME_LIMIT = 30;   // 制限時間（秒）
@@ -54,9 +53,6 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       usedSet.add(idx);
       return idx;
     }
-
-    // DOM画像オーバーレイを初期化
-    domImageOverlay.init();
 
     // 白背景
     k.add([
@@ -177,8 +173,6 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
 
       // リザルト画面へ遷移
       k.wait(1.5, () => {
-        // DOM画像オーバーレイをクリーンアップ
-        domImageOverlay.cleanup();
         k.go('result', {
           score: state.velocity,
           blocksDropped: state.blocksDropped,
@@ -231,9 +225,6 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       if (pendingBlock) {
         updatePendingBlock(pendingBlock, k.dt());
       }
-
-      // DOM画像オーバーレイの位置を更新
-      domImageOverlay.update();
     });
 
     // 最初のブロックをスポーン

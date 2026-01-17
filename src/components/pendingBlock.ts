@@ -1,12 +1,31 @@
 import type { KaboomCtx, GameObj, BlockConfig } from '../types';
 import { PHYSICS_CONFIG, getGroundTilt } from '../systems/physics';
-import { domImageOverlay } from '../utils/domImageOverlay';
 
 const SPAWN_Y = 60;       // ブロックの初期Y位置
 const LEFT_BOUND = 100;   // 左端の折り返し位置
 const RIGHT_BOUND = 700;  // 右端の折り返し位置
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
+const IMAGE_BLOCK_COLOR = { r: 66, g: 133, b: 244 }; // 青系（画像ブロック用）
+
+// 画像URLからラベルを抽出
+function extractImageLabel(url?: string): string {
+  if (!url) return 'IMG';
+  try {
+    // URLからファイル名を取得
+    const path = new URL(url).pathname;
+    const filename = path.split('/').pop() || '';
+    // 拡張子を除去して短縮
+    const name = filename.replace(/\.[^.]+$/, '');
+    // 長すぎる場合は短縮
+    if (name.length > 8) {
+      return name.substring(0, 6) + '..';
+    }
+    return name || 'IMG';
+  } catch {
+    return 'IMG';
+  }
+}
 
 // ブロックサイズに収まるフォントサイズを計算
 function calculateFontSize(text: string, blockWidth: number, blockHeight: number): number {
@@ -51,32 +70,24 @@ export function createPendingBlock(
   ];
 
   // ブロックの見た目（矩形のみ）
-  // 画像ブロックでもベースは矩形（DOM画像を上に重ねる）
   components.unshift(k.rect(config.width, config.height));
   if (config.type === 'image') {
-    // 画像ブロック：薄いオレンジ背景（画像読み込み前/失敗時に見える）
-    components.push(k.color(255, 220, 180));
-    components.push(k.outline(2, k.rgb(180, 80, 20)));
+    // 画像ブロック：青系の色（キーワードブロックと区別）
+    components.push(k.color(IMAGE_BLOCK_COLOR.r, IMAGE_BLOCK_COLOR.g, IMAGE_BLOCK_COLOR.b));
+    components.push(k.outline(2, k.rgb(40, 80, 180)));
   } else {
-    // キーワードブロック（矩形）
+    // キーワードブロック（オレンジ）
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
     components.push(k.outline(2, k.rgb(180, 80, 20)));
   }
 
   const block = k.add(components);
 
-  // 画像ブロックの場合はDOM画像オーバーレイを作成
-  if (config.type === 'image' && config.originalImageUrl) {
-    domImageOverlay.createOverlay(
-      config.originalImageUrl,
-      block,
-      config.width,
-      config.height
-    );
-  }
-
-  // テキストラベルを追加（キーワードブロックのみ）
-  const displayText = config.type === 'keyword' ? config.text : null;
+  // テキストラベルを追加（両方のブロックタイプで）
+  // 画像ブロックの場合はURLからファイル名を抽出して表示
+  const displayText = config.type === 'keyword'
+    ? config.text
+    : extractImageLabel(config.originalImageUrl);
 
   if (displayText) {
     const fontSize = calculateFontSize(displayText, config.width, config.height);
@@ -129,9 +140,8 @@ export function dropPendingBlock(
   const x = pendingBlock.pos.x;
   const currentAngle = pendingBlock.angle ?? 0;  // 現在の角度を保持
 
-  // 待機中ブロックと関連ラベル・画像オーバーレイを削除
+  // 待機中ブロックと関連ラベルを削除
   k.get('pendingBlockLabel').forEach((label) => k.destroy(label));
-  domImageOverlay.removeOverlaysForBlock(pendingBlock);
   k.destroy(pendingBlock);
 
   // 物理演算付きの落下ブロックを作成（矩形のみ）
@@ -150,28 +160,17 @@ export function dropPendingBlock(
   ];
 
   // ブロックの見た目と当たり判定（矩形のみ）
-  // 画像ブロックでもベースは矩形（DOM画像を上に重ねる）
   components.unshift(k.rect(config.width, config.height));
   components.push(k.area());
   if (config.type === 'image') {
-    // 画像ブロック：薄いオレンジ背景
-    components.push(k.color(255, 220, 180));
+    // 画像ブロック：青系の色
+    components.push(k.color(IMAGE_BLOCK_COLOR.r, IMAGE_BLOCK_COLOR.g, IMAGE_BLOCK_COLOR.b));
   } else {
-    // キーワードブロック
+    // キーワードブロック：オレンジ
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
   }
 
   const droppedBlock = k.add(components);
-
-  // 画像ブロックの場合はDOM画像オーバーレイを作成
-  if (config.type === 'image' && config.originalImageUrl) {
-    domImageOverlay.createOverlay(
-      config.originalImageUrl,
-      droppedBlock,
-      config.width,
-      config.height
-    );
-  }
 
   // 着地時の安定角度を記録するための変数
   let landedStableAngle: number | null = null;
@@ -223,8 +222,10 @@ export function dropPendingBlock(
     }
   });
 
-  // テキストラベルを追加（キーワードブロックのみ）
-  const displayText = config.type === 'keyword' ? config.text : null;
+  // テキストラベルを追加（両方のブロックタイプで）
+  const displayText = config.type === 'keyword'
+    ? config.text
+    : extractImageLabel(config.originalImageUrl);
 
   if (displayText) {
     const fontSize = calculateFontSize(displayText, config.width, config.height);
