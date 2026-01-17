@@ -3951,28 +3951,28 @@ function createTitleScene(k) {
     createDemoAnimation(k);
     k.add([
       k.text("AGILE STUDIO", { size: 28 }),
-      k.pos(200, 250),
+      k.pos(200, 200),
       k.anchor("center"),
       k.color(ACCENT_COLOR$3.r, ACCENT_COLOR$3.g, ACCENT_COLOR$3.b),
       k.z(10)
     ]);
     k.add([
       k.text("TOWER", { size: 52 }),
-      k.pos(200, 310),
+      k.pos(200, 260),
       k.anchor("center"),
       k.color(60, 60, 60),
       k.z(10)
     ]);
     k.add([
       k.text("~積み上げろ！アジャイルの塔~", { size: 12 }),
-      k.pos(200, 360),
+      k.pos(200, 310),
       k.anchor("center"),
       k.color(120, 120, 120),
       k.z(10)
     ]);
     const startBtn = k.add([
       k.rect(200, 50, { radius: 8 }),
-      k.pos(200, 450),
+      k.pos(200, 390),
       k.anchor("center"),
       k.color(ACCENT_COLOR$3.r, ACCENT_COLOR$3.g, ACCENT_COLOR$3.b),
       k.area(),
@@ -3981,7 +3981,7 @@ function createTitleScene(k) {
     ]);
     k.add([
       k.text("SPRINT START", { size: 20 }),
-      k.pos(200, 450),
+      k.pos(200, 390),
       k.anchor("center"),
       k.color(255, 255, 255),
       k.z(11)
@@ -4033,28 +4033,28 @@ function createTitleScene(k) {
     k.onKeyPress("space", startGame);
     k.add([
       k.text("Tap to drop blocks", { size: 11 }),
-      k.pos(200, 520),
+      k.pos(200, 460),
       k.anchor("center"),
       k.color(150, 150, 150),
       k.z(10)
     ]);
     k.add([
       k.text("Stack 10 blocks high!", { size: 11 }),
-      k.pos(200, 540),
+      k.pos(200, 480),
       k.anchor("center"),
       k.color(150, 150, 150),
       k.z(10)
     ]);
     k.add([
       k.text("Block falls = Game Over!", { size: 11 }),
-      k.pos(200, 560),
+      k.pos(200, 500),
       k.anchor("center"),
       k.color(180, 100, 100),
       k.z(10)
     ]);
     k.add([
       k.text(`CLEAR: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 10 }),
-      k.pos(200, 590),
+      k.pos(200, 530),
       k.anchor("center"),
       k.color(50, 180, 50),
       k.z(10)
@@ -4066,7 +4066,7 @@ function createRankingDisplay(k) {
   const ranking = getRanking();
   if (ranking.length === 0) return;
   const startX = 200;
-  const startY = 640;
+  const startY = 580;
   k.add([
     k.text("RANKING", { size: 12 }),
     k.pos(startX, startY),
@@ -4142,13 +4142,13 @@ function createDemoAnimation(k) {
 const PHYSICS_CONFIG = {
   gravity: 2e3,
   // 重力（px/s²）
-  groundY: 700,
-  // 地面のY座標（画面高800に合わせて余裕を持たせる）
+  groundY: 650,
+  // 地面のY座標（下部に余裕を持たせる）
   groundWidth: 280,
   // 地面の幅（縦長用に少し狭め）
   groundHeight: 16,
   // 地面の高さ
-  fallThreshold: 780,
+  fallThreshold: 750,
   // この高さを超えたらゲームオーバー
   leftBound: 0,
   // 左端
@@ -4430,15 +4430,15 @@ function createHUD(k) {
     k.z(100)
   ]);
   const heightBar = k.add([
-    k.rect(6, 600),
-    k.pos(390, 100),
+    k.rect(6, 550),
+    k.pos(390, 70),
     k.color(230, 230, 230),
     k.fixed(),
     k.z(99)
   ]);
   const heightMarker = k.add([
     k.rect(10, 4),
-    k.pos(390, 698),
+    k.pos(390, 618),
     k.anchor("center"),
     k.color(ACCENT_COLOR$2.r, ACCENT_COLOR$2.g, ACCENT_COLOR$2.b),
     k.fixed(),
@@ -4507,8 +4507,8 @@ function updateHUD(k, hud, state) {
     hud.timerText.color = k.rgb(ACCENT_COLOR$2.r, ACCENT_COLOR$2.g, ACCENT_COLOR$2.b);
   }
   hud.velocityText.text = String(state.velocity);
-  const normalizedHeight = Math.min(state.velocity / 600, 1);
-  const markerY = 698 - normalizedHeight * 598;
+  const normalizedHeight = Math.min(state.velocity / 550, 1);
+  const markerY = 618 - normalizedHeight * 548;
   hud.heightMarker.pos.y = markerY;
   const wind = getWindStrength();
   const absWind = Math.abs(wind);
