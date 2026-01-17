@@ -11,7 +11,13 @@
       "Bash(findstr:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Implement Agile Studio Tower game\n\n- 10-block stacking challenge mode\n- Physics-based gameplay with Kaboom.js\n- Blocks rotate while falling, stop on landing\n- Height \\(Velocity\\) calculation with rotation support\n- Keyword blocks from agile-studio.jp crawl data\n- Obstacle blocks \\(circle/triangle\\) with text\n- Title, Game, and Result scenes\n- Sound effects via Web Audio API\n- Responsive design for mobile/tablet\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: シーソー物理とゲーム体験の改善\n\n- カウンターボーナス追加（傾き3度以上で反対側のブロック効果が増幅）\n- ブロックがシーソーの傾きに追従して回転するように改善\n- 画像ブロックのアスペクト比を正しく保持するよう修正\n- WIN LINE/メダルシステム導入（金/銀/銅）\n- ローカルランキング機能追加（上位5件保持）\n- HUDにクリアライン表示を追加\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: シーソー物理とゲーム体験の改善\n\n- カウンターボーナス追加（傾き3度以上で反対側のブロック効果が増幅）\n- ブロックがシーソーの傾きに追従して回転するように改善\n- 画像ブロックのアスペクト比を正しく保持するよう修正\n- WIN LINE/メダルシステム導入（金/銀/銅）\n- ローカルランキング機能追加（上位5件保持）\n- HUDにクリアライン表示を追加\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(gh api:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: クロールデータをpublicフォルダに配置\n\nViteビルド時にdataフォルダがdistに含まれるよう修正\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run list --repo HappymanOkajima/agile-studio-tower --limit 2)",
+      "Bash(git commit:*)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" run view 21086544355 --repo HappymanOkajima/agile-studio-tower --log-failed)"
     ]
   }
 }

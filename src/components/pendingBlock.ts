@@ -1,5 +1,6 @@
 import type { KaboomCtx, GameObj, BlockConfig } from '../types';
 import { PHYSICS_CONFIG, getGroundTilt } from '../systems/physics';
+import { domImageOverlay } from '../utils/domImageOverlay';
 
 const SPAWN_Y = 60;       // ブロックの初期Y位置
 const LEFT_BOUND = 100;   // 左端の折り返し位置
@@ -50,21 +51,29 @@ export function createPendingBlock(
   ];
 
   // ブロックの見た目（矩形のみ）
-  if (config.type === 'image' && config.imageUrl) {
-    // 画像ブロック
-    components.unshift(k.sprite(config.imageUrl, {
-      width: config.width,
-      height: config.height,
-    }));
+  // 画像ブロックでもベースは矩形（DOM画像を上に重ねる）
+  components.unshift(k.rect(config.width, config.height));
+  if (config.type === 'image') {
+    // 画像ブロック：薄いオレンジ背景（画像読み込み前/失敗時に見える）
+    components.push(k.color(255, 220, 180));
     components.push(k.outline(2, k.rgb(180, 80, 20)));
   } else {
     // キーワードブロック（矩形）
-    components.unshift(k.rect(config.width, config.height));
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
     components.push(k.outline(2, k.rgb(180, 80, 20)));
   }
 
   const block = k.add(components);
+
+  // 画像ブロックの場合はDOM画像オーバーレイを作成
+  if (config.type === 'image' && config.originalImageUrl) {
+    domImageOverlay.createOverlay(
+      config.originalImageUrl,
+      block,
+      config.width,
+      config.height
+    );
+  }
 
   // テキストラベルを追加（キーワードブロックのみ）
   const displayText = config.type === 'keyword' ? config.text : null;
@@ -120,8 +129,9 @@ export function dropPendingBlock(
   const x = pendingBlock.pos.x;
   const currentAngle = pendingBlock.angle ?? 0;  // 現在の角度を保持
 
-  // 待機中ブロックと関連ラベルを削除
+  // 待機中ブロックと関連ラベル・画像オーバーレイを削除
   k.get('pendingBlockLabel').forEach((label) => k.destroy(label));
+  domImageOverlay.removeOverlaysForBlock(pendingBlock);
   k.destroy(pendingBlock);
 
   // 物理演算付きの落下ブロックを作成（矩形のみ）
@@ -140,21 +150,28 @@ export function dropPendingBlock(
   ];
 
   // ブロックの見た目と当たり判定（矩形のみ）
-  if (config.type === 'image' && config.imageUrl) {
-    // 画像ブロック
-    components.unshift(k.sprite(config.imageUrl, {
-      width: config.width,
-      height: config.height,
-    }));
-    components.push(k.area());
+  // 画像ブロックでもベースは矩形（DOM画像を上に重ねる）
+  components.unshift(k.rect(config.width, config.height));
+  components.push(k.area());
+  if (config.type === 'image') {
+    // 画像ブロック：薄いオレンジ背景
+    components.push(k.color(255, 220, 180));
   } else {
-    // キーワードブロック（矩形）
-    components.unshift(k.rect(config.width, config.height));
-    components.push(k.area());
+    // キーワードブロック
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
   }
 
   const droppedBlock = k.add(components);
+
+  // 画像ブロックの場合はDOM画像オーバーレイを作成
+  if (config.type === 'image' && config.originalImageUrl) {
+    domImageOverlay.createOverlay(
+      config.originalImageUrl,
+      droppedBlock,
+      config.width,
+      config.height
+    );
+  }
 
   // 着地時の安定角度を記録するための変数
   let landedStableAngle: number | null = null;

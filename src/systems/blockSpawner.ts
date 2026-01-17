@@ -52,7 +52,7 @@ export function generateBlockConfig(
 
   switch (type) {
     case 'image': {
-      if (imageData && imageData.success) {
+      if (imageData) {
         // 画像のアスペクト比を維持してスケール
         const aspectRatio = imageData.height / imageData.width;
         const maxWidth = 120;
@@ -73,10 +73,11 @@ export function generateBlockConfig(
           width: scaledWidth,
           height: scaledHeight,
           shape: 'rect',
-          imageUrl: imageData.sprite,
+          imageUrl: imageData.success ? imageData.sprite : undefined,
+          originalImageUrl: imageData.url,  // 元URLを保持（DOM表示用）
         };
       }
-      // 画像読み込み失敗時はキーワードブロックとして扱う
+      // 画像データなしの場合はキーワードブロックとして扱う
       return generateBlockConfig('keyword', difficulty, undefined, keywordText || 'AGILE');
     }
 

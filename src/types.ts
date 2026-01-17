@@ -13,6 +13,7 @@ export interface BlockConfig {
   height: number;
   shape: BlockShape;      // 形状（矩形・円・三角）
   imageUrl?: string;      // 画像ブロック用（スプライト名）
+  originalImageUrl?: string;  // 画像の元URL（DOM表示用）
   text?: string;          // キーワードブロック用
 }
 
