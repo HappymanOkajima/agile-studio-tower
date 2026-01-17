@@ -175,12 +175,10 @@ export function createResultScene(k: KaboomCtx): void {
       k.z(10),
     ]);
 
-    // Webリンクボタン（ランダムなページへ）
+    // Webリンク（ランダムなページへ）- DOMのアンカータグを使用
     const pageLinks = getPageLinks();
-    // ランダムリンクを1回だけ選択（タッチイベントでも同じリンクを使う）
     const randomLink = pageLinks.length > 0 ? pageLinks[Math.floor(Math.random() * pageLinks.length)] : null;
     if (randomLink) {
-
       // リンクラベル
       k.add([
         k.text('Agile Studioのコンテンツをチェック!', { size: 12 }),
@@ -190,42 +188,56 @@ export function createResultScene(k: KaboomCtx): void {
         k.z(10),
       ]);
 
-      // リンクボタン
-      const linkBtn = k.add([
-        k.rect(320, 50, { radius: 8 }),
-        k.pos(200, 470),
-        k.anchor('center'),
-        k.color(60, 60, 60),
-        k.area(),
-        k.z(10),
-        'linkBtn',
-      ]);
+      // DOMアンカータグをCanvas上にオーバーレイ
+      const gameArea = document.getElementById('game-area');
+      if (gameArea) {
+        const link = document.createElement('a');
+        link.href = randomLink.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
 
-      // リンクタイトル（短く切り詰め）
-      const displayTitle = randomLink.title.length > 20
-        ? randomLink.title.substring(0, 20) + '...'
-        : randomLink.title;
-      k.add([
-        k.text(displayTitle, { size: 14 }),
-        k.pos(200, 470),
-        k.anchor('center'),
-        k.color(255, 255, 255),
-        k.z(11),
-      ]);
+        // リンクタイトル（短く切り詰め）
+        const displayTitle = randomLink.title.length > 20
+          ? randomLink.title.substring(0, 20) + '...'
+          : randomLink.title;
+        link.textContent = displayTitle;
 
-      // ホバーエフェクト
-      linkBtn.onHover(() => {
-        linkBtn.color = k.rgb(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b);
-      });
+        // スタイル設定
+        link.style.cssText = `
+          position: absolute;
+          left: 50%;
+          top: 58.75%;
+          transform: translate(-50%, -50%);
+          width: 80%;
+          max-width: 320px;
+          padding: 14px 16px;
+          background: #3c3c3c;
+          color: white;
+          text-decoration: none;
+          text-align: center;
+          font-size: 14px;
+          font-family: sans-serif;
+          border-radius: 8px;
+          box-sizing: border-box;
+          z-index: 100;
+          -webkit-tap-highlight-color: transparent;
+        `;
 
-      linkBtn.onHoverEnd(() => {
-        linkBtn.color = k.rgb(60, 60, 60);
-      });
+        // ホバー効果
+        link.addEventListener('mouseenter', () => {
+          link.style.background = `rgb(${ACCENT_COLOR.r}, ${ACCENT_COLOR.g}, ${ACCENT_COLOR.b})`;
+        });
+        link.addEventListener('mouseleave', () => {
+          link.style.background = '#3c3c3c';
+        });
 
-      // クリックでURLを開く
-      linkBtn.onClick(() => {
-        window.open(randomLink.url, '_blank');
-      });
+        gameArea.appendChild(link);
+
+        // シーン離脱時にリンクを削除
+        k.onSceneLeave(() => {
+          link.remove();
+        });
+      }
     }
 
     // RETRYボタン
@@ -269,10 +281,11 @@ export function createResultScene(k: KaboomCtx): void {
     retryBtn.onClick(retry);
     k.onKeyPress('space', retry);
 
-    // iOS Safari用: ネイティブDOMタッチイベントも登録
+    // iOS Safari用: ネイティブDOMタッチイベントも登録（RETRYボタン用）
     const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
     if (canvas) {
       const handleNativeTouch = (e: TouchEvent) => {
+        if (retried) return;
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         // キャンバス座標に変換（400x800のゲーム座標系）
@@ -281,22 +294,7 @@ export function createResultScene(k: KaboomCtx): void {
         const x = (touch.clientX - rect.left) * scaleX;
         const y = (touch.clientY - rect.top) * scaleY;
 
-        // リンクボタン領域チェック（200, 470 中心、320x50）
-        if (randomLink) {
-          const linkBtnX = 200;
-          const linkBtnY = 470;
-          const linkHw = 160;
-          const linkHh = 25;
-          if (x >= linkBtnX - linkHw && x <= linkBtnX + linkHw &&
-              y >= linkBtnY - linkHh && y <= linkBtnY + linkHh) {
-            e.preventDefault();
-            window.open(randomLink.url, '_blank');
-            return;
-          }
-        }
-
         // RETRYボタン領域チェック（200, 600 中心、180x45）
-        if (retried) return;
         const btnX = 200;
         const btnY = 600;
         const hw = 90;
