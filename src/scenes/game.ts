@@ -1,5 +1,5 @@
 import type { KaboomCtx, GameState, BlockSource, BlockConfig, GameObj } from '../types';
-import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight, updateSeesaw, updateWind, applyWindToBlocks } from '../systems/physics';
+import { setupPhysics, createGround, checkFallenBlocks, calculateMaxHeight, updateSeesaw, updateWind, applyWindToBlocks, getWindStrength } from '../systems/physics';
 import { getDifficultyForTime, selectBlockType, generateBlockConfig } from '../systems/blockSpawner';
 import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
@@ -68,6 +68,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
 
     // HUD作成
     const hud = createHUD(k);
+
+    // 風の音を開始
+    audioManager.startWind();
 
     // 次のブロックをスポーン
     function spawnNextBlock(): void {
@@ -186,6 +189,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       state.isGameOver = true;
       state.gameOverReason = reason;
 
+      // 風の音を停止
+      audioManager.stopWind();
+
       // 待機ブロックを削除
       if (pendingBlock) {
         k.get('pendingBlockLabel').forEach((label) => k.destroy(label));
@@ -231,6 +237,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       // 風を更新
       updateWind(k);
       applyWindToBlocks(k);
+
+      // 風の音を更新（風の強さに連動）
+      audioManager.updateWind(getWindStrength());
 
       // 落下判定
       if (checkFallenBlocks(k)) {
