@@ -14,7 +14,8 @@ export interface HUDElements {
   winLine: GameObj;
   winLineLabel: GameObj;
   windIndicator: GameObj;
-  windArrow: GameObj;
+  windPole: GameObj;
+  windFlagStrips: GameObj[]; // ドット絵風の三角形旗（複数の短冊）
 }
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
@@ -115,22 +116,40 @@ export function createHUD(k: KaboomCtx): HUDElements {
   // 風インジケーター（上部中央）
   const windIndicator = k.add([
     k.text('WIND', { size: 10 }),
-    k.pos(200, 12),
+    k.pos(200, 8),
     k.anchor('center'),
     k.color(150, 150, 150),
     k.fixed(),
     k.z(100),
   ]);
 
-  // 風の矢印
-  const windArrow = k.add([
-    k.text('< >', { size: 16 }),
-    k.pos(200, 32),
-    k.anchor('center'),
-    k.color(100, 180, 220),
+  // 風のポール（固定）
+  const windPole = k.add([
+    k.rect(3, 28),
+    k.pos(200, 20),
+    k.anchor('top'),
+    k.color(120, 120, 120),
     k.fixed(),
     k.z(100),
   ]);
+
+  // 風の旗（ドット絵風三角形 - 5本の短冊で構成）
+  // 各短冊は高さが異なり、三角形を形成
+  const stripHeights = [12, 10, 8, 5, 2]; // 根元から先端へ
+  const stripWidth = 4;
+  const windFlagStrips: GameObj[] = [];
+
+  for (let i = 0; i < stripHeights.length; i++) {
+    const strip = k.add([
+      k.rect(stripWidth, stripHeights[i]),
+      k.pos(200 + i * stripWidth, 24),
+      k.anchor('left'),
+      k.color(100, 180, 220),
+      k.fixed(),
+      k.z(101),
+    ]);
+    windFlagStrips.push(strip);
+  }
 
   return {
     blocksLabel,
@@ -144,7 +163,8 @@ export function createHUD(k: KaboomCtx): HUDElements {
     winLine,
     winLineLabel,
     windIndicator,
-    windArrow,
+    windPole,
+    windFlagStrips,
   };
 }
 
@@ -181,23 +201,42 @@ export function updateHUD(k: KaboomCtx, hud: HUDElements, state: GameState): voi
   const markerY = 618 - normalizedHeight * 548;
   hud.heightMarker.pos.y = markerY;
 
-  // 風インジケーター更新
+  // 風インジケーター更新（ドット絵風三角形旗）
   const wind = getWindStrength();
   const absWind = Math.abs(wind);
 
-  // 風の強さに応じて矢印を更新
-  if (absWind < 0.2) {
-    hud.windArrow.text = '- -';
-    hud.windArrow.color = k.rgb(150, 150, 150);
-  } else if (wind < 0) {
-    // 左向きの風
-    const arrows = absWind > 0.7 ? '<<<' : absWind > 0.4 ? '<<' : '<';
-    hud.windArrow.text = arrows;
-    hud.windArrow.color = k.rgb(100, 180, 220);
-  } else {
-    // 右向きの風
-    const arrows = absWind > 0.7 ? '>>>' : absWind > 0.4 ? '>>' : '>';
-    hud.windArrow.text = arrows;
-    hud.windArrow.color = k.rgb(100, 180, 220);
-  }
+  const stripWidth = 4;
+  const stripHeights = [12, 10, 8, 5, 2];
+  // 風の強さに応じて表示する短冊数（1〜5）
+  const visibleStrips = absWind < 0.2 ? 1 : absWind < 0.4 ? 2 : absWind < 0.6 ? 3 : absWind < 0.8 ? 4 : 5;
+
+  hud.windFlagStrips.forEach((strip, i) => {
+    if (i < visibleStrips) {
+      strip.hidden = false;
+      strip.height = stripHeights[i];
+
+      if (absWind < 0.2) {
+        // 微風：旗を垂れ下げる（ポール直下に小さく）
+        strip.pos.x = 199;
+        strip.pos.y = 24 + i * 3;
+        strip.width = 3;
+        strip.height = 3;
+        strip.color = k.rgb(150, 150, 150);
+      } else if (wind < 0) {
+        // 左向きの風：旗を左に伸ばす
+        strip.pos.x = 199 - (i + 1) * stripWidth;
+        strip.pos.y = 24;
+        strip.width = stripWidth;
+        strip.color = k.rgb(100, 180, 220);
+      } else {
+        // 右向きの風：旗を右に伸ばす
+        strip.pos.x = 201 + i * stripWidth;
+        strip.pos.y = 24;
+        strip.width = stripWidth;
+        strip.color = k.rgb(100, 180, 220);
+      }
+    } else {
+      strip.hidden = true;
+    }
+  });
 }

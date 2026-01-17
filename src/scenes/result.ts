@@ -166,9 +166,9 @@ export function createResultScene(k: KaboomCtx): void {
       k.z(10),
     ]);
 
-    // 統計情報（ブロック数のみ）
+    // 統計情報（Done数）
     k.add([
-      k.text(`Blocks: ${params.blocksDropped}`, { size: 11 }),
+      k.text(`Done: ${params.blocksDropped}`, { size: 11 }),
       k.pos(200, 360),
       k.anchor('center'),
       k.color(120, 120, 120),

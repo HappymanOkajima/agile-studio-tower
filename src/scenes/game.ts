@@ -125,6 +125,26 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
         if (landed) return;
         landed = true;
         audioManager.playLand();
+
+        // 「Done!」エフェクト表示（ブロックの上に表示）
+        const blockPos = droppedBlock.pos;
+        const doneText = k.add([
+          k.text('Done!', { size: 20 }),
+          k.pos(blockPos.x, blockPos.y - 80),
+          k.anchor('center'),
+          k.color(239, 112, 33), // アクセントカラー
+          k.opacity(1),
+          k.z(100),
+        ]);
+        // フェードアウトしながら上に浮く
+        doneText.onUpdate(() => {
+          doneText.pos.y -= 1.5;
+          doneText.opacity -= 0.03;
+          if (doneText.opacity <= 0) {
+            doneText.destroy();
+          }
+        });
+
         fallingBlock = null;
 
         // 全ブロック落下完了チェック
