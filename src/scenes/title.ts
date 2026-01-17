@@ -1,6 +1,6 @@
 import type { KaboomCtx } from '../types';
 import { audioManager } from '../systems/audioManager';
-import { getRanking, GAME_CONFIG } from '../systems/scoreManager';
+import { getRanking } from '../systems/scoreManager';
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
 
@@ -127,40 +127,6 @@ export function createTitleScene(k: KaboomCtx): void {
     // スペースキーでも開始
     k.onKeyPress('space', startGame);
 
-    // 操作説明
-    k.add([
-      k.text('Tap to drop blocks', { size: 11 }),
-      k.pos(200, 460),
-      k.anchor('center'),
-      k.color(150, 150, 150),
-      k.z(10),
-    ]);
-
-    k.add([
-      k.text('Stack 10 blocks high!', { size: 11 }),
-      k.pos(200, 480),
-      k.anchor('center'),
-      k.color(150, 150, 150),
-      k.z(10),
-    ]);
-
-    k.add([
-      k.text('Block falls = Game Over!', { size: 11 }),
-      k.pos(200, 500),
-      k.anchor('center'),
-      k.color(180, 100, 100),
-      k.z(10),
-    ]);
-
-    // クリアライン表示
-    k.add([
-      k.text(`CLEAR: ${GAME_CONFIG.WIN_THRESHOLD} pt`, { size: 10 }),
-      k.pos(200, 530),
-      k.anchor('center'),
-      k.color(50, 180, 50),
-      k.z(10),
-    ]);
-
     // ランキング表示
     createRankingDisplay(k);
   });
@@ -172,7 +138,7 @@ function createRankingDisplay(k: KaboomCtx): void {
   if (ranking.length === 0) return;
 
   const startX = 200;
-  const startY = 580;
+  const startY = 470;
 
   // ランキングタイトル
   k.add([
