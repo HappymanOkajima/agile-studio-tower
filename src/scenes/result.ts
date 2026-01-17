@@ -257,7 +257,10 @@ export function createResultScene(k: KaboomCtx): void {
     });
 
     // リトライ
+    let retried = false;
     const retry = () => {
+      if (retried) return;
+      retried = true;
       clearInterval(scoreInterval);
       audioManager.resume();
       k.go('title');
@@ -265,5 +268,32 @@ export function createResultScene(k: KaboomCtx): void {
 
     retryBtn.onClick(retry);
     k.onKeyPress('space', retry);
+
+    // iOS Safari用: ネイティブDOMタッチイベントも登録
+    const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
+    if (canvas) {
+      const handleNativeTouch = (e: TouchEvent) => {
+        if (retried) return;
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        // キャンバス座標に変換（800x800のゲーム座標系）
+        const scaleX = 800 / rect.width;
+        const scaleY = 800 / rect.height;
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
+
+        // ボタン領域チェック（400, 680 中心、200x50）
+        const btnX = 400;
+        const btnY = 680;
+        const hw = 100;
+        const hh = 25;
+        if (x >= btnX - hw && x <= btnX + hw &&
+            y >= btnY - hh && y <= btnY + hh) {
+          e.preventDefault();
+          retry();
+        }
+      };
+      canvas.addEventListener('touchstart', handleNativeTouch, { passive: false });
+    }
   });
 }
