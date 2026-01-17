@@ -24,6 +24,119 @@ function determineMedal(isNewRecord: boolean, reason: 'complete' | 'blockFell' |
   return 'none';
 }
 
+// メダルアイコンを描画（円形メダル風）
+function drawMedalIcon(k: KaboomCtx, medal: MedalType, centerX: number, centerY: number): void {
+  if (medal === 'none') return;
+
+  const color = MEDAL_COLORS[medal];
+  const darkColor = {
+    r: Math.floor(color.r * 0.7),
+    g: Math.floor(color.g * 0.7),
+    b: Math.floor(color.b * 0.7),
+  };
+  const lightColor = {
+    r: Math.min(255, Math.floor(color.r * 1.2)),
+    g: Math.min(255, Math.floor(color.g * 1.2)),
+    b: Math.min(255, Math.floor(color.b * 1.2)),
+  };
+
+  // メダルの外枠（暗い色）
+  k.add([
+    k.circle(32),
+    k.pos(centerX, centerY),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(9),
+  ]);
+
+  // メダル本体
+  const medalBody = k.add([
+    k.circle(28),
+    k.pos(centerX, centerY),
+    k.anchor('center'),
+    k.color(color.r, color.g, color.b),
+    k.z(10),
+  ]);
+
+  // ハイライト（左上）
+  k.add([
+    k.circle(8),
+    k.pos(centerX - 10, centerY - 10),
+    k.anchor('center'),
+    k.color(lightColor.r, lightColor.g, lightColor.b),
+    k.opacity(0.6),
+    k.z(11),
+  ]);
+
+  // メダル中央のマーク（星型をドット絵風に）
+  // 中央の点
+  k.add([
+    k.rect(6, 6),
+    k.pos(centerX, centerY),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(11),
+  ]);
+  // 上
+  k.add([
+    k.rect(4, 8),
+    k.pos(centerX, centerY - 8),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(11),
+  ]);
+  // 下
+  k.add([
+    k.rect(4, 8),
+    k.pos(centerX, centerY + 8),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(11),
+  ]);
+  // 左
+  k.add([
+    k.rect(8, 4),
+    k.pos(centerX - 8, centerY),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(11),
+  ]);
+  // 右
+  k.add([
+    k.rect(8, 4),
+    k.pos(centerX + 8, centerY),
+    k.anchor('center'),
+    k.color(darkColor.r, darkColor.g, darkColor.b),
+    k.z(11),
+  ]);
+
+  // リボン（メダルの上部）
+  k.add([
+    k.rect(12, 20),
+    k.pos(centerX - 8, centerY - 38),
+    k.anchor('center'),
+    k.color(200, 50, 50),
+    k.z(8),
+  ]);
+  k.add([
+    k.rect(12, 20),
+    k.pos(centerX + 8, centerY - 38),
+    k.anchor('center'),
+    k.color(200, 50, 50),
+    k.z(8),
+  ]);
+
+  // メダル本体の輝きアニメーション
+  medalBody.onUpdate(() => {
+    const brightness = 1 + Math.sin(k.time() * 4) * 0.1;
+    medalBody.color = k.rgb(
+      Math.min(255, color.r * brightness),
+      Math.min(255, color.g * brightness),
+      Math.min(255, color.b * brightness)
+    );
+  });
+}
+
 export function createResultScene(k: KaboomCtx): void {
   k.scene('result', (params: ResultParams) => {
     // 崩壊/タイムアウトの場合でもpassedWinLineがあればスコア表示
@@ -48,6 +161,11 @@ export function createResultScene(k: KaboomCtx): void {
       k.color(255, 255, 255),
       k.z(0),
     ]);
+
+    // メダルアイコン表示（メダル獲得時のみ）
+    if (medal !== 'none') {
+      drawMedalIcon(k, medal, 200, 60);
+    }
 
     // メインヘッダー（メダルベース）
     let headerText: string;
