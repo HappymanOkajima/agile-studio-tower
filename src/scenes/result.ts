@@ -192,7 +192,13 @@ export function createResultScene(k: KaboomCtx): void {
       const gameArea = document.getElementById('game-area');
       if (gameArea) {
         const link = document.createElement('a');
-        link.href = randomLink.url;
+        // UTMパラメータを追加してGA4でトラッキング
+        const utmParams = new URLSearchParams({
+          utm_source: 'agile-studio-tower',
+          utm_medium: 'game',
+          utm_campaign: 'tower-game-result',
+        });
+        link.href = `${randomLink.url}?${utmParams.toString()}`;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
 
