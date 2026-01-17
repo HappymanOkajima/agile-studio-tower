@@ -182,7 +182,7 @@ export function createResultScene(k: KaboomCtx): void {
 
       // リンクラベル
       k.add([
-        k.text('Agile Studioの記事をチェック!', { size: 12 }),
+        k.text('Agile Studioのコンテンツをチェック!', { size: 12 }),
         k.pos(200, 420),
         k.anchor('center'),
         k.color(100, 100, 100),
