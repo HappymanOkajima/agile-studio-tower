@@ -3813,6 +3813,17 @@ async function loadBase64AsSprite(k, base64, spriteName) {
     img.onload = async () => {
       const width = img.naturalWidth;
       const height = img.naturalHeight;
+      if (width < 10 || height < 10) {
+        clearTimeout(timeoutId);
+        resolve({
+          url: base64,
+          sprite: "",
+          width: 150,
+          height: 90,
+          success: false
+        });
+        return;
+      }
       try {
         await k.loadSprite(spriteName, base64);
         clearTimeout(timeoutId);
@@ -4332,7 +4343,7 @@ function generateBlockConfig(type, difficulty, imageData, keywordText) {
   const baseWidth = difficulty.minBlockWidth + Math.random() * (difficulty.maxBlockWidth - difficulty.minBlockWidth);
   switch (type) {
     case "image": {
-      if (imageData) {
+      if (imageData && imageData.success && imageData.width > 0 && imageData.height > 0) {
         const aspectRatio = imageData.height / imageData.width;
         const maxWidth = 100;
         const maxHeight = 70;
@@ -4342,15 +4353,16 @@ function generateBlockConfig(type, difficulty, imageData, keywordText) {
           scaledHeight = maxHeight;
           scaledWidth = scaledHeight / aspectRatio;
         }
-        return {
-          type: "image",
-          width: scaledWidth,
-          height: scaledHeight,
-          shape: "rect",
-          imageUrl: imageData.success ? imageData.sprite : void 0,
-          originalImageUrl: imageData.url
-          // 元URLを保持（DOM表示用）
-        };
+        if (scaledWidth > 10 && scaledHeight > 10) {
+          return {
+            type: "image",
+            width: scaledWidth,
+            height: scaledHeight,
+            shape: "rect",
+            imageUrl: imageData.sprite,
+            originalImageUrl: imageData.url
+          };
+        }
       }
       return generateBlockConfig("keyword", difficulty, void 0, keywordText || "AGILE");
     }
