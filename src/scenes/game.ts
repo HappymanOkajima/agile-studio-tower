@@ -77,7 +77,8 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       const difficulty = getDifficultyForTime(state.blocksDropped / TOTAL_BLOCKS * 60);
 
       // ブロックソースから利用可能なリソースを取得
-      const totalImages = blockSources.imageUrls.length;
+      // Base64画像を優先的に使用
+      const totalImages = blockSources.imageBase64.length;
       const totalKeywords = blockSources.keywords.length;
 
       const type = selectBlockType(difficulty, totalImages, totalKeywords);
@@ -88,8 +89,9 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
 
       if (type === 'image' && totalImages > 0) {
         const idx = getRandomUnusedIndex(totalImages, usedImageIndices);
-        const url = blockSources.imageUrls[idx];
-        imageData = blockSources.loadedImages.get(url);
+        const base64 = blockSources.imageBase64[idx];
+        // Base64画像はloadedImagesに登録済み
+        imageData = blockSources.loadedImages.get(base64);
       } else if (type === 'keyword' && totalKeywords > 0) {
         const idx = getRandomUnusedIndex(totalKeywords, usedKeywordIndices);
         keywordText = blockSources.keywords[idx];

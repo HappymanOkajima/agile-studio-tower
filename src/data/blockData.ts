@@ -12,19 +12,29 @@ export async function loadCrawlData(): Promise<CrawlData> {
 
 export function extractBlockSources(crawlData: CrawlData): Omit<BlockSource, 'loadedImages'> {
   const imageUrls: string[] = [];
+  const imageBase64: string[] = [];
   const keywords: string[] = [];
 
   // 全ページを処理
   for (const page of crawlData.pages) {
     for (const element of page.elements) {
-      // 画像URLを収集（imgタグのみ）
-      if (element.tag === 'img' && element.sampleImageUrls) {
-        for (const url of element.sampleImageUrls) {
-          // data URIと重複を除外
-          if (url && !url.startsWith('data:') && !imageUrls.includes(url)) {
-            // 小さすぎる画像やアイコンを除外
-            if (!url.includes('favicon') && !url.includes('icon')) {
-              imageUrls.push(url);
+      // Base64画像を優先的に収集（imgタグのみ）
+      if (element.tag === 'img') {
+        // Base64画像がある場合はそちらを使用
+        if (element.sampleImageBase64) {
+          for (const base64 of element.sampleImageBase64) {
+            if (base64 && !imageBase64.includes(base64)) {
+              imageBase64.push(base64);
+            }
+          }
+        }
+        // 元のURLも保持（フォールバック用）
+        if (element.sampleImageUrls) {
+          for (const url of element.sampleImageUrls) {
+            if (url && !url.startsWith('data:') && !imageUrls.includes(url)) {
+              if (!url.includes('favicon') && !url.includes('icon')) {
+                imageUrls.push(url);
+              }
             }
           }
         }
@@ -46,6 +56,7 @@ export function extractBlockSources(crawlData: CrawlData): Omit<BlockSource, 'lo
   // 数量制限
   return {
     imageUrls: imageUrls.slice(0, 30),  // 最大30枚
+    imageBase64: imageBase64.slice(0, 20),  // 最大20枚（Base64は大きいので制限）
     keywords: keywords.slice(0, 50),     // 最大50キーワード
   };
 }

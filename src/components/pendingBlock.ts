@@ -6,26 +6,6 @@ const LEFT_BOUND = 100;   // 左端の折り返し位置
 const RIGHT_BOUND = 700;  // 右端の折り返し位置
 
 const ACCENT_COLOR = { r: 239, g: 112, b: 33 }; // #ef7021
-const IMAGE_BLOCK_COLOR = { r: 66, g: 133, b: 244 }; // 青系（画像ブロック用）
-
-// 画像URLからラベルを抽出
-function extractImageLabel(url?: string): string {
-  if (!url) return 'IMG';
-  try {
-    // URLからファイル名を取得
-    const path = new URL(url).pathname;
-    const filename = path.split('/').pop() || '';
-    // 拡張子を除去して短縮
-    const name = filename.replace(/\.[^.]+$/, '');
-    // 長すぎる場合は短縮
-    if (name.length > 8) {
-      return name.substring(0, 6) + '..';
-    }
-    return name || 'IMG';
-  } catch {
-    return 'IMG';
-  }
-}
 
 // ブロックサイズに収まるフォントサイズを計算
 function calculateFontSize(text: string, blockWidth: number, blockHeight: number): number {
@@ -69,25 +49,25 @@ export function createPendingBlock(
     'pendingBlock',
   ];
 
-  // ブロックの見た目（矩形のみ）
-  components.unshift(k.rect(config.width, config.height));
-  if (config.type === 'image') {
-    // 画像ブロック：青系の色（キーワードブロックと区別）
-    components.push(k.color(IMAGE_BLOCK_COLOR.r, IMAGE_BLOCK_COLOR.g, IMAGE_BLOCK_COLOR.b));
-    components.push(k.outline(2, k.rgb(40, 80, 180)));
+  // ブロックの見た目
+  if (config.type === 'image' && config.imageUrl) {
+    // 画像ブロック（スプライトを使用）
+    components.unshift(k.sprite(config.imageUrl, {
+      width: config.width,
+      height: config.height,
+    }));
+    components.push(k.outline(2, k.rgb(180, 80, 20)));
   } else {
-    // キーワードブロック（オレンジ）
+    // キーワードブロック（矩形）
+    components.unshift(k.rect(config.width, config.height));
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
     components.push(k.outline(2, k.rgb(180, 80, 20)));
   }
 
   const block = k.add(components);
 
-  // テキストラベルを追加（両方のブロックタイプで）
-  // 画像ブロックの場合はURLからファイル名を抽出して表示
-  const displayText = config.type === 'keyword'
-    ? config.text
-    : extractImageLabel(config.originalImageUrl);
+  // テキストラベルを追加（キーワードブロックのみ）
+  const displayText = config.type === 'keyword' ? config.text : null;
 
   if (displayText) {
     const fontSize = calculateFontSize(displayText, config.width, config.height);
@@ -159,14 +139,18 @@ export function dropPendingBlock(
     'droppedBlock',
   ];
 
-  // ブロックの見た目と当たり判定（矩形のみ）
-  components.unshift(k.rect(config.width, config.height));
-  components.push(k.area());
-  if (config.type === 'image') {
-    // 画像ブロック：青系の色
-    components.push(k.color(IMAGE_BLOCK_COLOR.r, IMAGE_BLOCK_COLOR.g, IMAGE_BLOCK_COLOR.b));
+  // ブロックの見た目と当たり判定
+  if (config.type === 'image' && config.imageUrl) {
+    // 画像ブロック（スプライトを使用）
+    components.unshift(k.sprite(config.imageUrl, {
+      width: config.width,
+      height: config.height,
+    }));
+    components.push(k.area());
   } else {
-    // キーワードブロック：オレンジ
+    // キーワードブロック（矩形）
+    components.unshift(k.rect(config.width, config.height));
+    components.push(k.area());
     components.push(k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b));
   }
 
@@ -222,10 +206,8 @@ export function dropPendingBlock(
     }
   });
 
-  // テキストラベルを追加（両方のブロックタイプで）
-  const displayText = config.type === 'keyword'
-    ? config.text
-    : extractImageLabel(config.originalImageUrl);
+  // テキストラベルを追加（キーワードブロックのみ）
+  const displayText = config.type === 'keyword' ? config.text : null;
 
   if (displayText) {
     const fontSize = calculateFontSize(displayText, config.width, config.height);

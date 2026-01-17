@@ -55,6 +55,7 @@ export interface LoadedImage {
 // ブロックソース（クロールデータから抽出）
 export interface BlockSource {
   imageUrls: string[];
+  imageBase64: string[];  // Base64エンコード済み画像
   keywords: string[];
   loadedImages: Map<string, LoadedImage>;
 }
@@ -65,6 +66,7 @@ export interface CrawlElement {
   count: number;
   sampleTexts?: string[];
   sampleImageUrls?: string[];
+  sampleImageBase64?: string[];  // Base64エンコード済み画像
 }
 
 // クロールデータのページ

@@ -1,7 +1,7 @@
 import kaboom from 'kaboom';
 import type { BlockSource } from './types';
 import { loadCrawlData, extractBlockSources } from './data/blockData';
-import { preloadImages } from './utils/imageLoader';
+import { preloadBase64Images } from './utils/imageLoader';
 import { createTitleScene } from './scenes/title';
 import { createGameScene } from './scenes/game';
 import { createResultScene } from './scenes/result';
@@ -74,9 +74,9 @@ async function main() {
     loadingSubText.text = 'Extracting block data...';
     const sourcesWithoutImages = extractBlockSources(crawlData);
 
-    // 画像をプリロード
+    // Base64画像をスプライトとしてロード
     loadingSubText.text = 'Loading images...';
-    const loadedImages = await preloadImages(k, sourcesWithoutImages.imageUrls);
+    const loadedImages = await preloadBase64Images(k, sourcesWithoutImages.imageBase64);
 
     // ブロックソース完成
     const blockSources: BlockSource = {
@@ -86,15 +86,8 @@ async function main() {
 
     // ロード結果をログ出力
     const successCount = Array.from(loadedImages.values()).filter(img => img.success).length;
-    console.log(`Images: ${successCount}/${blockSources.imageUrls.length} loaded successfully`);
+    console.log(`Images: ${successCount}/${blockSources.imageBase64.length} loaded successfully`);
     console.log(`Keywords: ${blockSources.keywords.length} available`);
-
-    // 失敗した画像をログ
-    loadedImages.forEach((img, url) => {
-      if (!img.success) {
-        console.warn(`Failed to load image: ${url}`);
-      }
-    });
 
     // オーディオマネージャー初期化
     audioManager.init();
@@ -123,6 +116,7 @@ async function main() {
     k.wait(2, () => {
       const fallbackSources: BlockSource = {
         imageUrls: [],
+        imageBase64: [],
         keywords: ['アジャイル', 'スクラム', 'スプリント', 'バックログ', 'レトロ'],
         loadedImages: new Map(),
       };

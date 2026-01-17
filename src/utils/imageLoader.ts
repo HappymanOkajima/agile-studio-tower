@@ -79,3 +79,67 @@ export async function preloadImages(
 
   return results;
 }
+
+// Base64画像をスプライトとしてロード
+async function loadBase64AsSprite(
+  k: KaboomCtx,
+  base64: string,
+  spriteName: string
+): Promise<LoadedImage> {
+  return new Promise((resolve) => {
+    const timeoutId = setTimeout(() => {
+      resolve({
+        url: base64,
+        sprite: '',
+        width: 150,
+        height: 90,
+        success: false,
+      });
+    }, 5000);
+
+    // Base64はそのままloadSpriteに渡せる
+    k.loadSprite(spriteName, base64)
+      .then((spriteData) => {
+        clearTimeout(timeoutId);
+        const width = spriteData.tex?.width || 150;
+        const height = spriteData.tex?.height || 90;
+        resolve({
+          url: base64,
+          sprite: spriteName,
+          width,
+          height,
+          success: true,
+        });
+      })
+      .catch(() => {
+        clearTimeout(timeoutId);
+        resolve({
+          url: base64,
+          sprite: '',
+          width: 150,
+          height: 90,
+          success: false,
+        });
+      });
+  });
+}
+
+// Base64画像をプリロード
+export async function preloadBase64Images(
+  k: KaboomCtx,
+  base64Images: string[]
+): Promise<Map<string, LoadedImage>> {
+  const results = new Map<string, LoadedImage>();
+  const uniqueImages = [...new Set(base64Images)].slice(0, 20); // 最大20枚
+
+  // 並列でロード
+  const loadPromises = uniqueImages.map(async (base64, index) => {
+    const spriteName = `block_img_${index}`;
+    const result = await loadBase64AsSprite(k, base64, spriteName);
+    results.set(base64, result);
+  });
+
+  await Promise.all(loadPromises);
+
+  return results;
+}
