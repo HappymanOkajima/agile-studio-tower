@@ -38,7 +38,7 @@ async function loadBase64AsSprite(
       }
 
       try {
-        // Kaboomスプライトとして登録
+        // Kaplayスプライトとして登録
         await k.loadSprite(spriteName, base64);
         clearTimeout(timeoutId);
         resolve({
@@ -109,7 +109,7 @@ async function loadSingleStationImage(
     img.src = base64;
   });
 
-  // Kaboomスプライトとして登録
+  // Kaplayスプライトとして登録
   await k.loadSprite(spriteName, base64);
 
   return {

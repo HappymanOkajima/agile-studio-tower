@@ -1,4 +1,4 @@
-import kaboom from 'kaboom';
+import kaplay from 'kaplay';
 import type { BlockSource } from './types';
 import { loadCrawlData, extractBlockSources, extractPageLinks } from './data/blockData';
 import { setPageLinks } from './systems/scoreManager';
@@ -37,9 +37,9 @@ async function main() {
 
   // 難易度プリセットに基づいて風設定を更新
   updateWindConfig();
-  // Kaboom.js 初期化
+  // Kaplay 初期化
   const gameArea = document.getElementById('game-area');
-  const k = kaboom({
+  const k = kaplay({
     width: 400,
     height: 800,
     background: [255, 255, 255],

@@ -1,4 +1,4 @@
-import type { KaboomCtx, GameObj } from 'kaboom';
+import type { KAPLAYCtx, GameObj } from 'kaplay';
 
 // ブロック種別
 export type BlockType = 'image' | 'keyword';
@@ -46,7 +46,7 @@ export interface RankDefinition {
 // ロード済み画像情報
 export interface LoadedImage {
   url: string;
-  sprite: string;  // Kaboomスプライト名
+  sprite: string;  // Kaplayスプライト名
   width: number;
   height: number;
   success: boolean;
@@ -121,5 +121,6 @@ export interface ResultParams {
   passedWinLine: boolean;  // CLEAR LINEを超えたか（途中で崩れても記録）
 }
 
-// Kaboomコンテキスト型（再エクスポート）
-export type { KaboomCtx, GameObj };
+// Kaplayコンテキスト型（互換性のためKaboomCtxエイリアスも提供）
+export type KaboomCtx = KAPLAYCtx;
+export type { KAPLAYCtx, GameObj };

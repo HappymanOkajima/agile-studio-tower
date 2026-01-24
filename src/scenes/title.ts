@@ -85,7 +85,7 @@ export function createTitleScene(k: KaboomCtx): void {
 
     startBtn.onClick(startGame);
 
-    // タッチでも開始（iOS対応）- Kaboom経由
+    // タッチでも開始（iOS対応）- Kaplay経由
     k.onTouchStart(() => {
       // ボタン領域内のタッチかチェック
       const touch = k.mousePos();

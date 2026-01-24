@@ -1,4 +1,4 @@
-import type { KaboomCtx, GameObj } from 'kaboom';
+import type { KaboomCtx, GameObj } from '../types';
 import { getCurrentDifficultyPreset } from '../config/gameConfig';
 
 // 基本設定（風設定は動的に更新される）

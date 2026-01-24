@@ -101,7 +101,7 @@ node scripts/convertImages.cjs
 
 ## 技術スタック
 
-- **Kaboom.js** - 2Dゲームエンジン（物理演算含む）
+- **Kaplay** - 2Dゲームエンジン（Kaboom.js後継、物理演算含む）
 - **TypeScript** - 型安全な開発
 - **Vite** - 高速な開発サーバーとビルド
 
@@ -155,7 +155,7 @@ PNG画像 → resizeImages.cjs（800px幅にリサイズ）
        → stationImagesData.json
 
 [実行時]
-Base64データ → Image要素でサイズ取得 → Kaboomスプライトとして登録
+Base64データ → Image要素でサイズ取得 → Kaplayスプライトとして登録
 ```
 
 ### レガシーモード（?images=legacy）
@@ -164,13 +164,13 @@ Webサイトのクロールデータ（agile-studio.json）からBase64画像を
 
 ## 設計メモ: iOS Safariのタッチイベント
 
-### 問題: Kaboomのタッチイベントが反応しない
+### 問題: Kaplayのタッチイベントが反応しない
 
-iOS Safari（特にiPhone）では、Kaboomの`onClick()`や`onTouchStart()`がボタンに対して正しく反応しないことがある。
+iOS Safari（特にiPhone）では、Kaplayの`onClick()`や`onTouchStart()`がボタンに対して正しく反応しないことがある。
 
 ### 解決策: ネイティブDOMタッチイベントを併用
 
-Kaboomのイベントハンドラに加えて、Canvas要素に直接`touchstart`イベントリスナーを登録する。
+Kaplayのイベントハンドラに加えて、Canvas要素に直接`touchstart`イベントリスナーを登録する。
 
 ```typescript
 // iOS Safari用: ネイティブDOMタッチイベント
