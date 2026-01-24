@@ -46,6 +46,8 @@ async function main() {
     debug: false,
     global: false,
     root: gameArea || undefined,
+    crisp: false,           // アンチエイリアス有効
+    texFilter: 'linear',    // テクスチャ補間（滑らかに）
   });
 
   // ローディング表示
