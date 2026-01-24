@@ -5,6 +5,7 @@ import { createHUD, updateHUD } from '../components/hud';
 import { createPendingBlock, updatePendingBlock, dropPendingBlock } from '../components/pendingBlock';
 import { audioManager } from '../systems/audioManager';
 import { GAME_CONFIG } from '../systems/scoreManager';
+import { getGameConfig } from '../config/gameConfig';
 
 const TOTAL_BLOCKS = 10; // ブロック数
 const TIME_LIMIT = 30;   // 制限時間（秒）
@@ -78,26 +79,36 @@ export function createGameScene(k: KaboomCtx, blockSources: BlockSource): void {
       if (state.blocksRemaining <= 0) return;
 
       const difficulty = getDifficultyForTime(state.blocksDropped / TOTAL_BLOCKS * 60);
-
-      // ブロックソースから利用可能なリソースを取得
-      // Base64画像を優先的に使用
-      const totalImages = blockSources.imageBase64.length;
-      const totalKeywords = blockSources.keywords.length;
-
-      const type = selectBlockType(difficulty, totalImages, totalKeywords);
+      const gameConfig = getGameConfig();
 
       // リソースをランダムに取得（重複を避ける）
       let imageData;
       let keywordText;
+      let type: 'image' | 'keyword';
 
-      if (type === 'image' && totalImages > 0) {
+      if (gameConfig.imageMode === 'station' && blockSources.stationImages) {
+        // 駅名標画像モード: 画像100%
+        const totalImages = blockSources.stationImages.length;
         const idx = getRandomUnusedIndex(totalImages, usedImageIndices);
-        const base64 = blockSources.imageBase64[idx];
-        // Base64画像はloadedImagesに登録済み
-        imageData = blockSources.loadedImages.get(base64);
-      } else if (type === 'keyword' && totalKeywords > 0) {
-        const idx = getRandomUnusedIndex(totalKeywords, usedKeywordIndices);
-        keywordText = blockSources.keywords[idx];
+        const stationName = blockSources.stationImages[idx];
+        imageData = blockSources.loadedImages.get(stationName);
+        console.log('Station block:', stationName, 'imageData:', imageData);
+        type = 'image';
+      } else {
+        // レガシーモード: 従来のロジック
+        const totalImages = blockSources.imageBase64.length;
+        const totalKeywords = blockSources.keywords.length;
+
+        type = selectBlockType(difficulty, totalImages, totalKeywords);
+
+        if (type === 'image' && totalImages > 0) {
+          const idx = getRandomUnusedIndex(totalImages, usedImageIndices);
+          const base64 = blockSources.imageBase64[idx];
+          imageData = blockSources.loadedImages.get(base64);
+        } else if (type === 'keyword' && totalKeywords > 0) {
+          const idx = getRandomUnusedIndex(totalKeywords, usedKeywordIndices);
+          keywordText = blockSources.keywords[idx];
+        }
       }
 
       pendingConfig = generateBlockConfig(type, difficulty, imageData, keywordText);

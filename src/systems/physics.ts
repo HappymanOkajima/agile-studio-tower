@@ -1,5 +1,7 @@
 import type { KaboomCtx, GameObj } from 'kaboom';
+import { getCurrentDifficultyPreset } from '../config/gameConfig';
 
+// 基本設定（風設定は動的に更新される）
 export const PHYSICS_CONFIG = {
   gravity: 2000,           // 重力（px/s²）
   groundY: 650,            // 地面のY座標（下部に余裕を持たせる）
@@ -18,12 +20,21 @@ export const PHYSICS_CONFIG = {
   // 滑り設定
   slideSpeed: 15,           // ブロックの滑り速度係数
   slideThreshold: 14,       // この角度以上で滑り始める
-  // 風設定
+  // 風設定（難易度プリセットから動的に取得）
   windCycleTime: 4,         // 風が変わる周期（秒）
   windMaxStrength: 80,      // 風の最大強さ（px/s）
   windFallingMultiplier: 2, // 落下中ブロックへの風の倍率
   windCenterMultiplier: 1.5, // 中央付近への風の影響倍率
 };
+
+// 難易度プリセットから風設定を更新
+export function updateWindConfig(): void {
+  const preset = getCurrentDifficultyPreset();
+  PHYSICS_CONFIG.windCycleTime = preset.wind.cycleTime;
+  PHYSICS_CONFIG.windMaxStrength = preset.wind.maxStrength;
+  PHYSICS_CONFIG.windFallingMultiplier = preset.wind.fallingMultiplier;
+  PHYSICS_CONFIG.windCenterMultiplier = preset.wind.centerMultiplier;
+}
 
 // シーソーの状態
 let seesawAngle = 0;        // 現在の傾き（度）

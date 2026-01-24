@@ -2,11 +2,14 @@ import kaboom from 'kaboom';
 import type { BlockSource } from './types';
 import { loadCrawlData, extractBlockSources, extractPageLinks } from './data/blockData';
 import { setPageLinks } from './systems/scoreManager';
-import { preloadBase64Images } from './utils/imageLoader';
+import { preloadBase64Images, preloadStationImages } from './utils/imageLoader';
 import { createTitleScene } from './scenes/title';
 import { createGameScene } from './scenes/game';
 import { createResultScene } from './scenes/result';
 import { audioManager } from './systems/audioManager';
+import { parseGameConfig } from './config/gameConfig';
+import { updateWindConfig } from './systems/physics';
+import { getStationImageNames } from './data/stationImages';
 
 // モバイル向けスクロール防止（タッチイベントを妨げない）
 function preventMobileScroll(): void {
@@ -27,6 +30,13 @@ function preventMobileScroll(): void {
 async function main() {
   // モバイル対応
   preventMobileScroll();
+
+  // URLパラメータからゲーム設定を解析
+  const gameConfig = parseGameConfig();
+  console.log('Game config:', gameConfig);
+
+  // 難易度プリセットに基づいて風設定を更新
+  updateWindConfig();
   // Kaboom.js 初期化
   const gameArea = document.getElementById('game-area');
   const k = kaboom({
@@ -53,40 +63,65 @@ async function main() {
   ]);
 
   const loadingSubText = k.add([
-    k.text('Preparing blocks from agile-studio.jp', { size: 12 }),
+    k.text('Loading...', { size: 12 }),
     k.pos(200, 420),
     k.anchor('center'),
     k.color(180, 180, 180),
   ]);
 
   try {
-    // クロールデータをロード
-    loadingSubText.text = 'Loading site data...';
-    const crawlData = await loadCrawlData();
+    let blockSources: BlockSource;
 
-    // ブロックソースを抽出
-    loadingSubText.text = 'Extracting block data...';
-    const sourcesWithoutImages = extractBlockSources(crawlData);
+    if (gameConfig.imageMode === 'station') {
+      // 駅名標画像モード（デフォルト）
+      loadingSubText.text = 'Loading station images...';
+      const loadedImages = await preloadStationImages(k);
 
-    // ページリンクを抽出して設定
-    const pageLinks = extractPageLinks(crawlData);
-    setPageLinks(pageLinks);
-    console.log(`Page links: ${pageLinks.length} available`);
+      // ブロックソース（駅名標画像のみ）
+      const stationImageNames = getStationImageNames();
+      blockSources = {
+        imageUrls: [],
+        imageBase64: [],
+        keywords: [],
+        loadedImages,
+        stationImages: stationImageNames,
+      };
 
-    // Base64画像をスプライトとしてロード
-    loadingSubText.text = 'Loading images...';
-    const loadedImages = await preloadBase64Images(k, sourcesWithoutImages.imageBase64);
+      // デフォルトのページリンクを設定
+      const defaultLinks = [
+        { url: 'https://www.agile-studio.jp/', title: 'Agile Studio', path: '/' },
+        { url: 'https://www.agile-studio.jp/post/apm-about', title: 'Agile Practice Mapとは', path: '/post/apm-about' },
+        { url: 'https://www.agile-studio.jp/post/apm-stationboard', title: '駅名標のご紹介', path: '/post/apm-stationboard' },
+      ];
+      setPageLinks(defaultLinks);
 
-    // ブロックソース完成
-    const blockSources: BlockSource = {
-      ...sourcesWithoutImages,
-      loadedImages,
-    };
+      const successCount = Array.from(loadedImages.values()).filter(img => img.success).length;
+      console.log(`Station images: ${successCount}/${stationImageNames.length} loaded`);
+    } else {
+      // レガシーモード（agile-studio.jsonから）
+      loadingSubText.text = 'Loading site data...';
+      const crawlData = await loadCrawlData();
 
-    // ロード結果をログ出力
-    const successCount = Array.from(loadedImages.values()).filter(img => img.success).length;
-    console.log(`Images: ${successCount}/${blockSources.imageBase64.length} loaded successfully`);
-    console.log(`Keywords: ${blockSources.keywords.length} available`);
+      loadingSubText.text = 'Extracting block data...';
+      const sourcesWithoutImages = extractBlockSources(crawlData);
+
+      // ページリンクを抽出して設定
+      const pageLinks = extractPageLinks(crawlData);
+      setPageLinks(pageLinks);
+      console.log(`Page links: ${pageLinks.length} available`);
+
+      loadingSubText.text = 'Loading images...';
+      const loadedImages = await preloadBase64Images(k, sourcesWithoutImages.imageBase64);
+
+      blockSources = {
+        ...sourcesWithoutImages,
+        loadedImages,
+      };
+
+      const successCount = Array.from(loadedImages.values()).filter(img => img.success).length;
+      console.log(`Images: ${successCount}/${blockSources.imageBase64.length} loaded successfully`);
+      console.log(`Keywords: ${blockSources.keywords.length} available`);
+    }
 
     // オーディオマネージャー初期化
     audioManager.init();

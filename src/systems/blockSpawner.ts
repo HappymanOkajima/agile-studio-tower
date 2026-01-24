@@ -1,17 +1,16 @@
 import type { BlockType, BlockConfig, DifficultyConfig, LoadedImage } from '../types';
+import { getCurrentDifficultyPreset, interpolate } from '../config/gameConfig';
 
-// 難易度を時間経過に応じて計算
+// 難易度を時間経過に応じて計算（プリセットから取得）
 export function getDifficultyForTime(timeElapsed: number): DifficultyConfig {
   const progress = Math.min(timeElapsed / 60, 1); // 0〜1（60秒で最大）
+  const preset = getCurrentDifficultyPreset();
 
   return {
-    // ブロックサイズ: 幅は狭め（不安定に）
-    minBlockWidth: Math.max(30, 70 - progress * 30),
-    maxBlockWidth: Math.max(60, 120 - progress * 50),
-    // 移動速度: 最初から速め、さらに速く
-    oscillationSpeed: 180 + progress * 300,
-    // 縦長ブロックの確率: 進行するほど縦長（不安定）が増える
-    tallBlockChance: 0.3 + progress * 0.3,
+    minBlockWidth: interpolate(preset.block.minWidth, progress),
+    maxBlockWidth: interpolate(preset.block.maxWidth, progress),
+    oscillationSpeed: interpolate(preset.movement.oscillationSpeed, progress),
+    tallBlockChance: interpolate(preset.block.tallBlockChance, progress),
   };
 }
 
@@ -47,30 +46,40 @@ export function generateBlockConfig(
   imageData?: LoadedImage,
   keywordText?: string,
 ): BlockConfig {
-  const baseWidth = difficulty.minBlockWidth +
-    Math.random() * (difficulty.maxBlockWidth - difficulty.minBlockWidth);
-
   switch (type) {
     case 'image': {
       // 画像データが有効でサイズも正しい場合のみ画像ブロックとして使用
       if (imageData && imageData.success && imageData.width > 0 && imageData.height > 0) {
         // 画像のアスペクト比を維持してスケール
         const aspectRatio = imageData.height / imageData.width;
-        const maxWidth = 100;  // 縦長レイアウト用に縮小
-        const maxHeight = 70;
 
-        // 幅と高さの両方の上限を考慮してアスペクト比を保つ
-        let scaledWidth = Math.min(baseWidth * 1.2, maxWidth);
+        // サイズにバリエーションを持たせる（小:中:大 = 30%:40%:30%）
+        const sizeRoll = Math.random();
+        let targetWidth: number;
+        if (sizeRoll < 0.3) {
+          // 小サイズ（80-110px幅）- 積みにくい
+          targetWidth = 80 + Math.random() * 30;
+        } else if (sizeRoll < 0.7) {
+          // 中サイズ（110-150px幅）- 標準
+          targetWidth = 110 + Math.random() * 40;
+        } else {
+          // 大サイズ（150-200px幅）- 安定しやすい
+          targetWidth = 150 + Math.random() * 50;
+        }
+
+        // アスペクト比を維持して高さを計算
+        let scaledWidth = targetWidth;
         let scaledHeight = scaledWidth * aspectRatio;
 
-        // 高さが上限を超える場合は、高さ基準で幅を縮小
+        // 高さの上限チェック（100px）
+        const maxHeight = 100;
         if (scaledHeight > maxHeight) {
           scaledHeight = maxHeight;
           scaledWidth = scaledHeight / aspectRatio;
         }
 
-        // サイズが有効な場合のみ画像ブロックとして返す
-        if (scaledWidth > 10 && scaledHeight > 10) {
+        // 最小サイズチェック
+        if (scaledWidth >= 30 && scaledHeight >= 10) {
           return {
             type: 'image',
             width: scaledWidth,

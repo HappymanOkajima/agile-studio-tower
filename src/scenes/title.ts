@@ -17,9 +17,9 @@ export function createTitleScene(k: KaboomCtx): void {
     // デモブロック（背景で落下）
     createDemoAnimation(k);
 
-    // タイトル: AGILE STUDIO
+    // タイトル: Agile Practice Map
     k.add([
-      k.text('AGILE STUDIO', { size: 28 }),
+      k.text('Agile Practice Map', { size: 22 }),
       k.pos(200, 200),
       k.anchor('center'),
       k.color(ACCENT_COLOR.r, ACCENT_COLOR.g, ACCENT_COLOR.b),
@@ -29,7 +29,7 @@ export function createTitleScene(k: KaboomCtx): void {
     // タイトル: TOWER
     k.add([
       k.text('TOWER', { size: 52 }),
-      k.pos(200, 260),
+      k.pos(200, 250),
       k.anchor('center'),
       k.color(60, 60, 60),
       k.z(10),
@@ -37,8 +37,8 @@ export function createTitleScene(k: KaboomCtx): void {
 
     // サブタイトル
     k.add([
-      k.text('~積み上げろ！アジャイルの塔~', { size: 12 }),
-      k.pos(200, 310),
+      k.text('~プラクティスを積み上げよう~', { size: 12 }),
+      k.pos(200, 300),
       k.anchor('center'),
       k.color(120, 120, 120),
       k.z(10),

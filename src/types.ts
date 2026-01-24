@@ -58,6 +58,7 @@ export interface BlockSource {
   imageBase64: string[];  // Base64エンコード済み画像
   keywords: string[];
   loadedImages: Map<string, LoadedImage>;
+  stationImages?: string[];  // 駅名標画像モード用
 }
 
 // クロールデータの要素
