@@ -45,6 +45,11 @@ export interface DifficultyPreset {
     fallingMultiplier: number;
     centerMultiplier: number;
   };
+  seesaw: {
+    sensitivity: number;      // 傾き感度
+    slideSpeed: number;       // 滑り速度
+    tiltDamping: number;      // 傾き減衰
+  };
 }
 
 export const DIFFICULTY_PRESETS: Record<DifficultyMode, DifficultyPreset> = {
@@ -63,6 +68,11 @@ export const DIFFICULTY_PRESETS: Record<DifficultyMode, DifficultyPreset> = {
       fallingMultiplier: 1.5,
       centerMultiplier: 1.3,
     },
+    seesaw: {
+      sensitivity: 0.004,     // 傾き感度（低め）
+      slideSpeed: 4,          // 滑り速度（かなり遅め）
+      tiltDamping: 0.92,      // 傾き減衰（強め＝安定しやすい）
+    },
   },
   hard: {
     block: {
@@ -78,6 +88,11 @@ export const DIFFICULTY_PRESETS: Record<DifficultyMode, DifficultyPreset> = {
       cycleTime: 4,
       fallingMultiplier: 2,
       centerMultiplier: 1.5,
+    },
+    seesaw: {
+      sensitivity: 0.008,     // 傾き感度（高め）
+      slideSpeed: 15,         // 滑り速度（速め）
+      tiltDamping: 0.85,      // 傾き減衰（弱め＝不安定）
     },
   },
 };

@@ -27,14 +27,22 @@ export const PHYSICS_CONFIG = {
   windCenterMultiplier: 1.5, // 中央付近への風の影響倍率
 };
 
-// 難易度プリセットから風設定を更新
-export function updateWindConfig(): void {
+// 難易度プリセットから物理設定を更新
+export function updatePhysicsConfig(): void {
   const preset = getCurrentDifficultyPreset();
+  // 風設定
   PHYSICS_CONFIG.windCycleTime = preset.wind.cycleTime;
   PHYSICS_CONFIG.windMaxStrength = preset.wind.maxStrength;
   PHYSICS_CONFIG.windFallingMultiplier = preset.wind.fallingMultiplier;
   PHYSICS_CONFIG.windCenterMultiplier = preset.wind.centerMultiplier;
+  // シーソー設定
+  PHYSICS_CONFIG.seesawSensitivity = preset.seesaw.sensitivity;
+  PHYSICS_CONFIG.slideSpeed = preset.seesaw.slideSpeed;
+  PHYSICS_CONFIG.tiltDamping = preset.seesaw.tiltDamping;
 }
+
+// 後方互換性のためのエイリアス
+export const updateWindConfig = updatePhysicsConfig;
 
 // シーソーの状態
 let seesawAngle = 0;        // 現在の傾き（度）
@@ -141,10 +149,11 @@ export function updateSeesaw(k: KaboomCtx): void {
     // 中心(200)からの距離
     const distFromCenter = block.pos.x - 200;
 
-    // ブロックの重さ（面積に比例）
+    // ブロックの重さ（面積に比例、上限あり）
     const width = block.blockWidth ?? 50;
     const height = block.blockHeight ?? 50;
-    const weight = (width * height) / 1000; // 正規化
+    const rawWeight = (width * height) / 1000; // 正規化
+    const weight = Math.min(rawWeight, 12); // 重量上限（大ブロックでも傾きすぎない）
 
     // シンプルなてこの原理: トルク = 距離 × 重さ
     let torque = distFromCenter * weight;
