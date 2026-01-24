@@ -162,39 +162,6 @@ Base64データ → Image要素でサイズ取得 → Kaplayスプライトと�
 
 Webサイトのクロールデータ（agile-studio.json）からBase64画像を使用。
 
-## 設計メモ: iOS Safariのタッチイベント
-
-### 問題: Kaplayのタッチイベントが反応しない
-
-iOS Safari（特にiPhone）では、Kaplayの`onClick()`や`onTouchStart()`がボタンに対して正しく反応しないことがある。
-
-### 解決策: ネイティブDOMタッチイベントを併用
-
-Kaplayのイベントハンドラに加えて、Canvas要素に直接`touchstart`イベントリスナーを登録する。
-
-```typescript
-// iOS Safari用: ネイティブDOMタッチイベント
-const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
-if (canvas) {
-  canvas.addEventListener('touchstart', (e: TouchEvent) => {
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-
-    // キャンバス座標に変換（ゲーム座標系に合わせる）
-    const scaleX = 400 / rect.width;
-    const scaleY = 800 / rect.height;
-    const x = (touch.clientX - rect.left) * scaleX;
-    const y = (touch.clientY - rect.top) * scaleY;
-
-    // ボタン領域チェック
-    if (isInButtonArea(x, y)) {
-      e.preventDefault();
-      handleButtonClick();
-    }
-  }, { passive: false });
-}
-```
-
 ## ライセンス
 
 MIT
