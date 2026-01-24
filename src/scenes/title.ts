@@ -83,46 +83,8 @@ export function createTitleScene(k: KaboomCtx): void {
       k.go('game');
     };
 
+    // クリック/タップで開始（Kaplayネイティブ）
     startBtn.onClick(startGame);
-
-    // タッチでも開始（iOS対応）- Kaplay経由
-    k.onTouchStart(() => {
-      // ボタン領域内のタッチかチェック
-      const touch = k.mousePos();
-      const btnPos = startBtn.pos;
-      const hw = 100; // 幅の半分
-      const hh = 25;  // 高さの半分
-      if (touch.x >= btnPos.x - hw && touch.x <= btnPos.x + hw &&
-          touch.y >= btnPos.y - hh && touch.y <= btnPos.y + hh) {
-        startGame();
-      }
-    });
-
-    // iOS Safari用: ネイティブDOMタッチイベントも登録
-    const canvas = document.querySelector('#game-area canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const handleNativeTouch = (e: TouchEvent) => {
-        if (gameStarted) return;
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        // キャンバス座標に変換（400x800のゲーム座標系）
-        const scaleX = 400 / rect.width;
-        const scaleY = 800 / rect.height;
-        const x = (touch.clientX - rect.left) * scaleX;
-        const y = (touch.clientY - rect.top) * scaleY;
-
-        // ボタン領域チェック
-        const btnPos = startBtn.pos;
-        const hw = 100;
-        const hh = 25;
-        if (x >= btnPos.x - hw && x <= btnPos.x + hw &&
-            y >= btnPos.y - hh && y <= btnPos.y + hh) {
-          e.preventDefault();
-          startGame();
-        }
-      };
-      canvas.addEventListener('touchstart', handleNativeTouch, { passive: false });
-    }
 
     // スペースキーでも開始
     k.onKeyPress('space', startGame);
